@@ -25,11 +25,11 @@ class Transsmart_Shipping_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected $_apiClient;
 
-    /**
-     * A list of carrier profiles that can use the location selector
+    /**|
+     * A list of carrier profile ID's that can use the location selector
      * @var array
      */
-    protected $_locationSelectCarrierProfiles = array();
+    protected $_locationSelectCarrierProfiles;
 
     /**
      * Get the Transsmart API client, and initialize it with the configured authentication details. The same instance
@@ -114,69 +114,121 @@ class Transsmart_Shipping_Helper_Data extends Mage_Core_Helper_Abstract
         return preg_match('/^transsmartpickup_carrierprofile_([0-9]+)$/', $shippingMethod) === 1;
     }
 
+    /**
+     * Checks the shipping method of the given quote to see if it's a Transsmart shipping method. Also checks if the
+     * quote address has a Transsmart carrier profile.
+     *
+     * @param Mage_Sales_Model_Quote $quote
+     * @return bool
+     */
+    public function isTranssmartQuote($quote)
+    {
+        $shippingAddress = $quote->getShippingAddress();
+        if ($shippingAddress) {
+            // check shipping method
+            $shippingMethod = $shippingAddress->getShippingMethod();
+            if (Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+                return true;
+            }
+
+            // check shipping address carrier profile
+            if ($shippingAddress->getTranssmartCarrierprofileId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
-     * Retrieves carrier profiles that can have the location selector
-     * @todo This could return (old) carrier profiles, deleted from the database, but still present in the config table.
-     * @todo Refactor to Transsmart_Shipping_Model_Resource_Carrierprofile_Collection::addLocationSelectEnabledFilter
+     * Check the shipping address for the given quote to see if the location selector is enabled (and thus, a pickup
+     * address is required).
+     *
+     * @param Mage_Sales_Model_Quote $quote
+     * @param bool $totalsCollected False if $quote->collectTotals() still needs to be called
+     * @return bool
+     */
+    public function isLocationSelectQuote($quote, $totalsCollected = true)
+    {
+        $enableLocationSelect = false;
+
+        if (($shippingAddress = $quote->getShippingAddress())) {
+
+            $carrierprofileId = null;
+            if ($totalsCollected || $quote->getTotalsCollectedFlag()) {
+                /** @see Transsmart_Shipping_Model_Sales_Quote_Address_Total_Shipping::collect */
+                $carrierprofileId = $shippingAddress->getTranssmartCarrierprofileId();
+            }
+            else {
+                // we can't rely on the shipping address 'transsmart_carrierprofile_id' yet, so use the shipping rate
+                if (($rate = $shippingAddress->getShippingRateByCode($shippingAddress->getShippingMethod()))) {
+                    $carrierprofileId = $rate->getTranssmartCarrierprofileId();
+                }
+            }
+
+            if ($carrierprofileId) {
+                /** @var Transsmart_Shipping_Model_Carrierprofile $carrierprofile */
+                $carrierprofile = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+                    ->joinCarrier()
+                    ->getItemById($carrierprofileId);
+                if ($carrierprofile) {
+                    $enableLocationSelect = (bool)$carrierprofile->isLocationSelectEnabled();
+                }
+            }
+        }
+
+        return $enableLocationSelect;
+    }
+
+    /**
+     * Checks the shipping method of the given order to see if it's a Transsmart shipping method. Also checks if the
+     * order address has a Transsmart carrier profile.
+     * If this logic changes, also update Transsmart_Shipping_Model_Sales_Resource_Order::joinVirtualGridColumnsToSelect
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     */
+    public function isTranssmartOrder($order)
+    {
+        // check shipping method
+        $shippingMethod = $order->getShippingMethod();
+        if (Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+            return true;
+        }
+
+        // check shipping address carrier profile
+        $shippingAddress = $order->getShippingAddress();
+        if ($shippingAddress) {
+            if ($shippingAddress->getTranssmartCarrierprofileId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieves IDs of carrier profiles that use the location selector.
+     *
+     * @deprecated
      * @param Mage_Core_Model_Store|int $store
      * @return array
      */
     public function getLocationSelectCarrierProfiles($store = null)
     {
-        if ($store == null) {
-            $store = Mage::app()->getStore();
-        }
+        if (is_null($this->_locationSelectCarrierProfiles)) {
+            $this->_locationSelectCarrierProfiles = array();
 
-        // We were provided a store ID
-        if (is_numeric($store)) {
-            $store = Mage::app()->getStore($store);
-        }
-
-        if (!isset($this->_locationSelectCarrierProfiles[$store->getId()])) {
-
-            $carrierProfiles = Mage::getModel('core/config_data')
-                ->getCollection()
-                ->addFieldToFilter('path', array('like' => 'transsmart_carrier_profiles/carrierprofile_%/method'))
-                ->addFieldToFilter('value', 'transsmartpickup')
-                ->addFieldToFilter('scope_id', array('in' => array(0, $store->getId())))
-                ->addOrder('scope')
-                ->load();
-
-            $pickupCarrierProfileConfigs = array();
-            $carrierProfileIds = array();
-
-            if ($carrierProfiles->count() > 0) {
-                foreach ($carrierProfiles as $carrierProfile) {
-                    preg_match('#transsmart_carrier_profiles/carrierprofile_([0-9]+)/#', $carrierProfile->getPath(), $matches);
-
-                    if (count($matches) == 2) {
-                        $pickupCarrierProfileConfigs [] = 'transsmart_carrier_profiles/carrierprofile_' . $matches[1] . '/location_select';
-                    }
-                }
-
-                $locationSelectProfiles = Mage::getModel('core/config_data')
-                    ->getCollection()
-                    ->addFieldToFilter('path', array('in' => $pickupCarrierProfileConfigs))
-                    ->addFieldToFilter('value', 1)
-                    ->addFieldToFilter('scope_id', array('in' => array(0, $store->getId())))
-                    ->addOrder('scope')
-                    ->load();
-
-                foreach ($locationSelectProfiles as $locationSelectProfile) {
-                    preg_match('#transsmart_carrier_profiles/carrierprofile_([0-9]+)/#', $locationSelectProfile->getPath(), $matches);
-
-                    if (count($matches) == 2) {
-                        $carrierProfileIds [] = $matches[1];
-                    }
+            $carrierProfiles = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+                ->joinCarrier();
+            foreach ($carrierProfiles as $_carrierProfile) {
+                if ($_carrierProfile->isLocationSelectEnabled()) {
+                    $this->_locationSelectCarrierProfiles[] = $_carrierProfile->getId();
                 }
             }
-
-
-            $this->_locationSelectCarrierProfiles[$store->getId()] = $carrierProfileIds;
         }
 
-        return $this->_locationSelectCarrierProfiles[$store->getId()];
+        return $this->_locationSelectCarrierProfiles;
     }
 
     /**

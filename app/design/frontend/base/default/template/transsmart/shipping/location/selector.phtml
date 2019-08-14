@@ -57,9 +57,11 @@
 
 <script type="text/javascript">
     var transsmartShippingPickup = new Transsmart.Shipping.Pickup({
-        lookupUrl: '<?php echo $this->getUrl('transsmart_shipping/location/lookup'); ?>',
-        carrierProfileIds: <?php echo Zend_Json_Encoder::encode($helper->getLocationSelectCarrierProfiles()); ?>
+        lookupUrl: '<?php echo $this->getUrl('transsmart_shipping/location/lookup'); ?>'
     });
+    if (typeof transsmartShippingPickupMethods != 'undefined') {
+        transsmartShippingPickup.setMethods(transsmartShippingPickupMethods);
+    }
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?callback=transsmartShippingPickup.googleMapsLoaded&libraries=geometry"></script>

@@ -34,12 +34,19 @@ class Transsmart_Shipping_Model_Sales_Resource_Order extends Mage_Sales_Model_Re
                 " AND transsmart_shipments_error.transsmart_status = 'ERR'",
                 array()
             )
+            ->joinLeft(
+                array('shipping_address' => $this->getTable('sales/order_address')),
+                "shipping_address.parent_id = $mainTableAlias.entity_id" .
+                " AND shipping_address.address_type = 'shipping'",
+                array()
+            )
             ->group("$mainTableAlias.entity_id");
 
         // define the logic that determines the Transsmart order status
         $casesResults = array();
 
-        $casesResults['main_table.shipping_method NOT LIKE \'transsmart%\_carrierprofile\_%\''] =
+        $casesResults['main_table.shipping_method NOT LIKE \'transsmart%\_carrierprofile\_%\''
+                    . ' AND shipping_address.transsmart_carrierprofile_id IS NULL'] =
             Transsmart_Shipping_Helper_Data::TRANSSMART_ORDER_STATUS_NOT_APPLICABLE;
 
         $casesResults['SUM(transsmart_shipments_error.total_qty) > 0'] =

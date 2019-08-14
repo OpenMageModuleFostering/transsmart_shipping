@@ -50,21 +50,14 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Create_Detail ext
     }
 
     /**
-     * Returns TRUE if the carrierprofile may be changed. This is not allowed when the order has a pickup shipping
-     * method.
+     * Returns TRUE if the carrierprofile may be changed. This is not allowed when the order has a pickup address.
      *
      * @return bool
      */
     public function getAllowChangeCarrierprofile()
     {
-        $shipment = Mage::registry('current_shipment');
-        if ($shipment) {
-            $shippingMethod = $shipment->getOrder()->getShippingMethod(false);
-            if (Mage::helper('transsmart_shipping')->isTranssmartPickup($shippingMethod)) {
-                return false;
-            }
-        }
-        return true;
+        return Mage::helper('transsmart_shipping/shipment')
+            ->getAllowChangeCarrierprofile(Mage::registry('current_shipment'));
     }
 
     /**
@@ -74,14 +67,20 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Create_Detail ext
      */
     public function getAvailableCarrierprofiles()
     {
-        $carrierprofiles = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')->toOptionHash();
-        foreach ($carrierprofiles as $_id => $_name) {
-            $_method = Mage::getStoreConfig('transsmart_carrier_profiles/carrierprofile_' . $_id . '/method');
-            if ($_method == Transsmart_Shipping_Model_Adminhtml_System_Config_Source_Method::PICKUP) {
-                unset($carrierprofiles[$_id]);
+        $carrierprofiles = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+            ->joinCarrier()
+            ->joinServicelevelTime()
+            ->joinServicelevelOther();
+
+        $res = array();
+        /** @var Transsmart_Shipping_Model_Carrierprofile $_carrierprofile */
+        foreach ($carrierprofiles as $_carrierprofile) {
+            if (!$_carrierprofile->isLocationSelectEnabled()) {
+                $res[$_carrierprofile->getData('carrierprofile_id')] = $_carrierprofile->getName();
             }
         }
-        return $carrierprofiles;
+
+        return $res;
     }
 
     /**

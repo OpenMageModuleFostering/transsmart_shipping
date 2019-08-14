@@ -8,6 +8,13 @@
 -->
 <config>
     <sections>
+        <carriers>
+            <groups>
+                <tablerate translate="comment">
+                    <comment>Transsmart extension enabled. This means you can use the extra column 'Transsmart Carrier Profile Id' in the CSV file, and multiple rows with the same value are allowed if they have different Carrier Profile Id's.</comment>
+                </tablerate>
+            </groups>
+        </carriers>
         <transsmart_shipping translate="label">
             <label>Transsmart Shipping</label>
             <tab>sales</tab>
@@ -193,9 +200,18 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </street2>
+                        <description translate="label">
+                            <label>Description</label>
+                            <sort_order>40</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </description>
                         <country_of_origin translate="label">
                             <label>Country of Origin</label>
-                            <sort_order>40</sort_order>
+                            <sort_order>50</sort_order>
                             <frontend_type>select</frontend_type>
                             <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
                             <show_in_default>1</show_in_default>
@@ -204,7 +220,7 @@
                         </country_of_origin>
                         <hs_code translate="label">
                             <label>HS Code</label>
-                            <sort_order>50</sort_order>
+                            <sort_order>60</sort_order>
                             <frontend_type>select</frontend_type>
                             <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
                             <show_in_default>1</show_in_default>
@@ -213,7 +229,7 @@
                         </hs_code>
                         <reason_of_export translate="label">
                             <label>Reason of Export</label>
-                            <sort_order>60</sort_order>
+                            <sort_order>70</sort_order>
                             <frontend_type>select</frontend_type>
                             <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
                             <show_in_default>1</show_in_default>
@@ -304,14 +320,10 @@
                         <location_select translate="label">
                             <label>Use Location Selector</label>
                             <sort_order>70</sort_order>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <frontend_model>transsmart_shipping/adminhtml_system_config_form_field_locationselect</frontend_model>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <depends>
-                                <method>transsmartpickup</method>
-                            </depends>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                         </location_select>
                     </fields>
                 </template>

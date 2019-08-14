@@ -14,8 +14,8 @@
             </action>
         </reference>
         <reference name="content">
-            <block type="adminhtml/template" name="transsmart_shipping.pickup.address_container"
-                   template="transsmart/shipping/sales/order/address/form/container.phtml"/>
+            <block type="transsmart_shipping/adminhtml_sales_order_view_detail"
+                   name="transsmart_shipping.pickup.address_container" />
         </reference>
     </adminhtml_sales_order_view>
 

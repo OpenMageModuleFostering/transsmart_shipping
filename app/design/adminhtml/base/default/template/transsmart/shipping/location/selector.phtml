@@ -64,9 +64,11 @@
         'Opening hours:', '<?php echo $this->jsQuoteEscape($this->__('Opening hours:')); ?>'
     ]);
     var transsmartShippingPickup = new Transsmart.Shipping.PickupAdmin({
-        lookupUrl: '<?php echo $this->getUrl('*/transsmart_shipping_location/lookup'); ?>',
-        carrierProfileIds: <?php echo Zend_Json_Encoder::encode($helper->getLocationSelectCarrierProfiles()); ?>
+        lookupUrl: '<?php echo $this->getUrl('*/transsmart_shipping_location/lookup'); ?>'
     });
+    if (typeof transsmartShippingPickupMethods != 'undefined') {
+        transsmartShippingPickup.setMethods(transsmartShippingPickupMethods);
+    }
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?callback=transsmartShippingPickup.googleMapsLoaded&libraries=geometry"></script>

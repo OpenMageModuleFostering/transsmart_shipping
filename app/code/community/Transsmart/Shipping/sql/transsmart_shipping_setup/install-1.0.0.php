@@ -31,7 +31,7 @@ $table = $connection->newTable($installer->getTable('transsmart_shipping/carrier
     ->addColumn('location_select', Varien_Db_Ddl_Table::TYPE_SMALLINT, null, array(
         'nullable'  => true,
         'unsigned'  => true,
-    ), 'Location Selector Enabled')
+    ), 'Location Selector Available')
     ->setComment('Transsmart Carrier');
 $connection->createTable($table);
 

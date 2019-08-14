@@ -22,35 +22,34 @@ Transsmart.Shipping.PickupAdmin = Class.create(Transsmart.Shipping.Pickup, {
 
         // Wait for the document to load
         document.observe('dom:loaded', function() {
-            self.detectCheckedShippingMethod();
-
-            // Add our customer validator
+            // Add our custom validator
             self.addValidators();
 
             var parentSetShippingMethod = order.setShippingMethod.bind(order);
 
             // Override the setShippingMethod, since we need it to determine when a shipping method was clicked
             order.setShippingMethod = function(value) {
-                // Check to see if this is a pickup profile that allows a location selector
-                var valueBits = value.match(/transsmartpickup_carrierprofile_([0-9]+)/);
-
-                // Nothing to attach, it doesn't match
-                if (valueBits == null || valueBits.length != 2) {
-                    return parentSetShippingMethod(value);
-                }
-
-                // Not a carrierprofile that has location selector enabled
-                if (self.config.carrierProfileIds.indexOf(valueBits[1]) == -1) {
-                    Transsmart.Logger.log('Carrier profile with id: ' + valueBits[1] + ' does not allow location selector');
-                    Transsmart.Logger.log('Allowed location selectors are: ', self.config.carrierProfileIds);
-                    return parentSetShippingMethod(value);
-                }
-
                 self.selectedShippingMethod = value;
+                self.selectedCarrierProfile = null;
+
+                // Does this shipping method have the location selector enabled?
+                if (typeof self.config.shippingMethods[self.selectedShippingMethod] == 'undefined') {
+                    Transsmart.Logger.log('Shipping method ' + self.selectedShippingMethod + ' does not allow location selector');
+                    Transsmart.Logger.log('Allowed location selectors are: ', self.config.shippingMethods);
+                    return parentSetShippingMethod(value);
+                }
+
+                self.selectedCarrierProfile = self.config.shippingMethods[this.selectedShippingMethod];
+
                 if (self.selectedShippingMethod != self.origShippingMethod) {
                     $('tss-ls-admin-selected-location').update('');
                 }
                 self.attachPickupDiv($('s_method_' + value));
+
+                // save the selected shipping method without reloading the shipping methods block
+                var data = {};
+                data['order[shipping_method]'] = self.selectedShippingMethod;
+                order.loadArea(['totals', 'billing_method'], true, data);
             };
 
             // We need to move the container to after the anchor-content, so it lines up correctly
@@ -62,26 +61,14 @@ Transsmart.Shipping.PickupAdmin = Class.create(Transsmart.Shipping.Pickup, {
                 self.selectLocationAndClose();
                 event.stop();
             });
-
-            var parentLoadAreaResponseHandler = order.loadAreaResponseHandler.bind(order);
-
-            // Override the area response handler so that we can detect which shipping method is selected
-            order.loadAreaResponseHandler = function(response) {
-                parentLoadAreaResponseHandler(response);
-                self.detectCheckedShippingMethod();
-            }
         });
     },
 
-    detectCheckedShippingMethod: function() {
-        var checkedShippingMethod = $$('input[name="order[shipping_method]"]:checked');
-
-        if (checkedShippingMethod.length > 0) {
-            var checkedShippingMethodValue = checkedShippingMethod[0].value;
-            if (/transsmartpickup_carrierprofile_[0-9]+/.test(checkedShippingMethodValue)) {
-                this.selectedShippingMethod = checkedShippingMethodValue;
-                this.attachPickupDiv($('s_method_' + checkedShippingMethodValue));
-            }
+    updateShippingMethods: function () {
+        // Check which shipping method has been selected
+        var checkedShippingMethods = $$('input[name="order[shipping_method]"]:checked');
+        if (checkedShippingMethods.length != 0) {
+            this.attachPickupDiv(checkedShippingMethods[0]);
         }
     },
 
@@ -120,9 +107,9 @@ Transsmart.Shipping.PickupAdmin = Class.create(Transsmart.Shipping.Pickup, {
             Translator.translate("A pickup location has to be selected"),
             function(v) {
                 return $('order-shipping-method-choose').visible() ? !Validation.get('IsEmpty').test(v) : true;
-            });
+            }
+        );
     }
-
 });
 
 Transsmart.Shipping.PickupAdmin.prototype.parent = Transsmart.Shipping.Pickup.prototype;

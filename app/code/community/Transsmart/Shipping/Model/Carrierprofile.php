@@ -13,6 +13,8 @@
  * @method Transsmart_Shipping_Model_Carrierprofile setServicelevelTimeId(int $value)
  * @method int getServicelevelOtherId()
  * @method Transsmart_Shipping_Model_Carrierprofile setServicelevelOtherId(int $value)
+ * @method int getEnableLocationSelect()
+ * @method Transsmart_Shipping_Model_Carrierprofile setEnableLocationSelect(int $value)
  *
  * @method string getCarrierCode()
  * @method string getCarrierName()
@@ -33,10 +35,11 @@ class Transsmart_Shipping_Model_Carrierprofile extends Transsmart_Shipping_Model
      * @var array
      */
     protected $apiKeysMapping = array(
-        'Id'                  => 'carrierprofile_id',
-        'CarrierId'           => 'carrier_id',
-        'ServiceLevelTimeId'  => 'servicelevel_time_id',
-        'ServiceLevelOtherId' => 'servicelevel_other_id'
+        'Id'                   => 'carrierprofile_id',
+        'CarrierId'            => 'carrier_id',
+        'ServiceLevelTimeId'   => 'servicelevel_time_id',
+        'ServiceLevelOtherId'  => 'servicelevel_other_id',
+        'EnableLocationSelect' => 'enable_location_select'
     );
 
     /**
@@ -78,37 +81,28 @@ class Transsmart_Shipping_Model_Carrierprofile extends Transsmart_Shipping_Model
     }
 
     /**
-     * Check if the location selector is enabled for this carrier profile.
+     * Check if the location selector is enabled for this carrier profile and the carrier.
      *
-     * @param mixed $store
+     * @param mixed $store deprecated
      * @return bool
      */
     public function isLocationSelectEnabled($store = null)
     {
-        $result = false;
-
-        if ($this->getCarrierLocationSelect()) {
-            if ($this->getConfigData('method') == Transsmart_Shipping_Model_Adminhtml_System_Config_Source_Method::PICKUP) {
-                if ($this->getConfigData('location_select', $store)) {
-                    $result = true;
-                }
-            }
-        }
-
-        return $result;
+        return ($this->getCarrierLocationSelect() && $this->getEnableLocationSelect());
     }
 
     /**
      * Return a name identifying this carrier profile. Because there is no 'name' attribute, this name is constructed
      * using config settings, or the carrier/servicelevel name if no name is configured.
      *
+     * @param mixed $store
      * @return string
      */
-    public function getName()
+    public function getName($store = null)
     {
         $id = $this->getData('carrierprofile_id');
 
-        $title = Mage::getStoreConfig('transsmart_carrier_profiles/carrierprofile_' . $id . '/title', 0);
+        $title = $this->getConfigData('title', $store);
         if (empty($title)) {
             $title = sprintf(
                 '(%s / %s / %s)',

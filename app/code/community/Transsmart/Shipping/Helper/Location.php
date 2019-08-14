@@ -8,6 +8,46 @@
 class Transsmart_Shipping_Helper_Location extends Mage_Core_Helper_Abstract
 {
     /**
+     * Return html snippet with a script which sends the shipping method data to the location selector object.
+     *
+     * @param array $shippingRates
+     * @return string
+     */
+    public function getMethodsUpdateHtml($shippingRates)
+    {
+        // collect shipping method data
+        $methods = array();
+        foreach ($shippingRates as $code => $_rates) {
+            /** @var Transsmart_Shipping_Model_Sales_Quote_Address_Rate $_rate */
+            foreach ($_rates as $_rate) {
+                $carrierprofileId = $_rate->getTranssmartCarrierprofileId();
+                if ($carrierprofileId) {
+                    /** @var Transsmart_Shipping_Model_Carrierprofile $carrierprofile */
+                    $carrierprofile = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+                        ->joinCarrier()
+                        ->getItemById($carrierprofileId);
+                    if ($carrierprofile) {
+                        if ($carrierprofile->isLocationSelectEnabled()) {
+                            $methods[$_rate->getCode()] = $carrierprofileId;
+                        }
+                    }
+                }
+            }
+        }
+
+        $html = "<script type=\"text/javascript\">\n"
+              . "//<![CDATA[\n"
+              . "transsmartShippingPickupMethods = " . Zend_Json_Encoder::encode($methods) . ";\n"
+              . "if (typeof transsmartShippingPickup != 'undefined') {\n"
+              . "    transsmartShippingPickup.setMethods(transsmartShippingPickupMethods);\n"
+              . "}\n"
+              . "//]]>\n"
+              . "</script>";
+
+        return $html;
+    }
+
+    /**
      * Retrieve geo location from the provided details
      * @param $zipcode
      * @param $country
@@ -124,6 +164,7 @@ class Transsmart_Shipping_Helper_Location extends Mage_Core_Helper_Abstract
             // fetch carrier parameters
             $carrier        = $request->getParam('carrier');
             $shippingMethod = $request->getParam('shipping_method');
+            $carrierprofile = $request->getParam('carrierprofile');
             $search         = $request->getParam('search');
 
             if (strlen(trim($search)) > 0) {
@@ -135,7 +176,18 @@ class Transsmart_Shipping_Helper_Location extends Mage_Core_Helper_Abstract
                 $housenr = isset($searchParts[3]) ? $searchParts[3] : $housenr;
             }
 
-            if (empty($carrier) && !empty($shippingMethod)) {
+            if (!empty($carrierprofile)) {
+                /** @var Transsmart_Shipping_Model_Carrierprofile $carrierprofile */
+                $carrierprofile = Mage::getModel('transsmart_shipping/carrierprofile')
+                    ->load($carrierprofile);
+
+                if (!$carrierprofile->isLocationSelectEnabled()) {
+                    Mage::throwException($this->__('Location selector not available for this carrier profile.'));
+                }
+
+                $carrier = $carrierprofile->getCarrierCode();
+            }
+            elseif (empty($carrier) && !empty($shippingMethod)) {
                 /** @var Transsmart_Shipping_Model_Carrierprofile $carrierprofile */
                 $carrierprofile = Mage::getModel('transsmart_shipping/carrierprofile')
                     ->loadByShippingMethodCode($shippingMethod);

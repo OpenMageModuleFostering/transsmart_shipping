@@ -196,12 +196,17 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
                         $successCount++;
                     }
                     else {
+                        $_shipmentError = $_shipment->getTranssmartShipmentError();
+                        if (empty($_shipmentError)) {
+                            $_shipmentError = $this->__('Unknown error');
+                        }
+
                         $this->_getSession()->addError(
                             $this->__(
                                 'Shipment #%s for order #%s could not be booked and printed: %s',
                                 $_shipment->getIncrementId(),
                                 $_shipment->getOrder()->getIncrementId(),
-                                'Error' // TODO: use ShipmentError field
+                                $_shipmentError
                             )
                         );
                     }
@@ -333,12 +338,17 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
                         $successCount++;
                     }
                     else {
+                        $_shipmentError = $_shipment->getTranssmartShipmentError();
+                        if (empty($_shipmentError)) {
+                            $_shipmentError = $this->__('Unknown error');
+                        }
+
                         $this->_getSession()->addError(
                             $this->__(
                                 'Shipment #%s for order #%s could not be printed: %s',
                                 $_shipment->getIncrementId(),
                                 $_shipment->getOrder()->getIncrementId(),
-                                'Error' // TODO: use ShipmentError field
+                                $_shipmentError
                             )
                         );
                     }
@@ -394,26 +404,22 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
     protected function _getMassActionShipmentCollection()
     {
         $request = $this->getRequest();
-
         $shipmentCollection = null;
-        switch ($request->getParam('massaction_prepare_key')) {
-            case 'shipment_ids':
-                $ids = $request->getParam('shipment_ids');
-                array_filter($ids, 'intval');
-                if (!empty($ids)) {
-                    $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
-                        ->addFieldToFilter('entity_id', array('in' => $ids));
-                }
-                break;
-
-            case 'order_ids':
-                $ids = $request->getParam('order_ids');
-                array_filter($ids, 'intval');
-                if (!empty($ids)) {
-                    $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
-                        ->setOrderFilter(array('in' => $ids));
-                }
-                break;
+        if ($request->has('shipment_ids')) {
+            $ids = $request->getParam('shipment_ids');
+            array_filter($ids, 'intval');
+            if (!empty($ids)) {
+                $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
+                    ->addFieldToFilter('entity_id', array('in' => $ids));
+            }
+        }
+        elseif ($request->has('order_ids')) {
+            $ids = $request->getParam('order_ids');
+            array_filter($ids, 'intval');
+            if (!empty($ids)) {
+                $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection')
+                    ->setOrderFilter(array('in' => $ids));
+            }
         }
 
         return $shipmentCollection;

@@ -9,7 +9,7 @@
 <config>
     <modules>
         <Transsmart_Shipping>
-            <version>1.0.2</version>
+            <version>1.0.7</version>
         </Transsmart_Shipping>
     </modules>
     <global>
@@ -17,11 +17,18 @@
             <transsmart_shipping>
                 <class>Transsmart_Shipping_Block</class>
             </transsmart_shipping>
+            <checkout>
+                <rewrite>
+                    <onepage_shipping_method_available>Transsmart_Shipping_Block_Checkout_Onepage_Shipping_Method_Available</onepage_shipping_method_available>
+                </rewrite>
+            </checkout>
             <adminhtml>
                 <rewrite>
                     <sales_order_grid>Transsmart_Shipping_Block_Adminhtml_Sales_Order_Grid</sales_order_grid>
+                    <sales_order_create_shipping_method_form>Transsmart_Shipping_Block_Adminhtml_Sales_Order_Create_Shipping_Method_Form</sales_order_create_shipping_method_form>
                     <sales_order_view_tab_shipments>Transsmart_Shipping_Block_Adminhtml_Sales_Order_View_Tab_Shipments</sales_order_view_tab_shipments>
                     <sales_shipment_grid>Transsmart_Shipping_Block_Adminhtml_Sales_Shipment_Grid</sales_shipment_grid>
+                    <shipping_carrier_tablerate_grid>Transsmart_Shipping_Block_Adminhtml_Shipping_Carrier_Tablerate_Grid</shipping_carrier_tablerate_grid>
                 </rewrite>
             </adminhtml>
         </blocks>
@@ -70,11 +77,27 @@
                     </costcenter>
                 </entities>
             </transsmart_shipping_resource>
+            <sales>
+                <rewrite>
+                    <quote_address_rate>Transsmart_Shipping_Model_Sales_Quote_Address_Rate</quote_address_rate>
+                    <quote_address_total_shipping>Transsmart_Shipping_Model_Sales_Quote_Address_Total_Shipping</quote_address_total_shipping>
+                </rewrite>
+            </sales>
             <sales_resource>
                 <rewrite>
                     <order>Transsmart_Shipping_Model_Sales_Resource_Order</order>
                 </rewrite>
             </sales_resource>
+            <shipping>
+                <rewrite>
+                    <carrier_tablerate>Transsmart_Shipping_Model_Shipping_Carrier_Tablerate</carrier_tablerate>
+                </rewrite>
+            </shipping>
+            <shipping_resource>
+                <rewrite>
+                    <carrier_tablerate>Transsmart_Shipping_Model_Shipping_Resource_Carrier_Tablerate</carrier_tablerate>
+                </rewrite>
+            </shipping_resource>
         </models>
         <resources>
             <transsmart_shipping_setup>
@@ -154,11 +177,17 @@
                 <transsmart_servicepoint_id>
                     <to_order_address>*</to_order_address>
                 </transsmart_servicepoint_id>
+                <transsmart_carrierprofile_id>
+                    <to_order_address>*</to_order_address>
+                </transsmart_carrierprofile_id>
             </sales_convert_quote_address>
             <sales_convert_order_address>
                 <transsmart_servicepoint_id>
                     <to_quote_address>*</to_quote_address>
                 </transsmart_servicepoint_id>
+                <transsmart_carrierprofile_id>
+                    <to_quote_address>*</to_quote_address>
+                </transsmart_carrierprofile_id>
             </sales_convert_order_address>
         </fieldsets>
     </global>
@@ -283,6 +312,7 @@
                 <street>1</street>
                 <streetno>0</streetno>
                 <street2>2</street2>
+                <description>short_description</description>
                 <country_of_origin>country_of_manufacture</country_of_origin>
             </mapping>
         </transsmart_shipping>

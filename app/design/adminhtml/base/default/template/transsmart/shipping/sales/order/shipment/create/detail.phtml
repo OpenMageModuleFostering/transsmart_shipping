@@ -73,17 +73,20 @@
 <script type="text/javascript">
 //<![CDATA[
 (function () {
-    var origCarrierprofileId = $('tss_carrierprofile').value, confirmed = false;
-    $('tss_carrierprofile').observe('change', function () {
-        if (this.value != origCarrierprofileId && !confirmed) {
-            if (confirm('<?php echo $this->jsQuoteEscape($this->__('Please note! The carrier profile will be changed. This change will NOT be made to the Magento order. This could affect the calculated shipping costs and tracking and tracing emails. Do you want to continue?')); ?>')) {
-                confirmed = true;
+    var selectCarrierprofile = $('tss_carrierprofile');
+    if (selectCarrierprofile) {
+        var origCarrierprofileId = selectCarrierprofile.value, confirmed = false;
+        selectCarrierprofile.observe('change', function () {
+            if (this.value != origCarrierprofileId && !confirmed) {
+                if (confirm('<?php echo $this->jsQuoteEscape($this->__('Please note! The carrier profile will be changed. This change will NOT be made to the Magento order. This could affect the calculated shipping costs and tracking and tracing emails. Do you want to continue?')); ?>')) {
+                    confirmed = true;
+                }
+                else {
+                    this.value = origCarrierprofileId;
+                }
             }
-            else {
-                this.value = origCarrierprofileId;
-            }
-        }
-    });
+        });
+    }
 })();
 //]]>
 </script>

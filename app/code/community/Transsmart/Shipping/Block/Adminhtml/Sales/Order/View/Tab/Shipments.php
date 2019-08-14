@@ -9,14 +9,13 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_View_Tab_Shipments
     extends Mage_Adminhtml_Block_Sales_Order_View_Tab_Shipments
 {
     /**
-     * Returns TRUE if the order uses a Transsmart shipping method.
+     * Returns TRUE if the order is a Transsmart order.
      *
      * @return bool
      */
-    public function usesTranssmartShippingMethod()
+    public function isTranssmartOrder()
     {
-        $shippingMethod = $this->getOrder()->getShippingMethod();
-        return Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod);
+        return Mage::helper('transsmart_shipping')->isTranssmartOrder($this->getOrder());
     }
 
     /**
@@ -27,7 +26,7 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_View_Tab_Shipments
     public function setCollection($collection)
     {
         if ($collection instanceof Mage_Sales_Model_Resource_Order_Shipment_Grid_Collection) {
-            if ($this->usesTranssmartShippingMethod()) {
+            if ($this->isTranssmartOrder()) {
                 $collection
                     ->addFieldToSelect('transsmart_document_id')
                     ->addFieldToSelect('transsmart_status')
@@ -44,7 +43,7 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_View_Tab_Shipments
      */
     protected function _prepareColumns()
     {
-        if ($this->usesTranssmartShippingMethod()) {
+        if ($this->isTranssmartOrder()) {
             $this->addColumnAfter('transsmart_document_id', array(
                 'header'  => Mage::helper('sales')->__('Transsmart Document Id'),
                 'index'   => 'transsmart_document_id',

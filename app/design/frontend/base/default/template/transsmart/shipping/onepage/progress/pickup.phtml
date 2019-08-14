@@ -8,10 +8,9 @@
 <?php /** @var Mage_Checkout_Block_Onepage_Progress $this */ ?>
 <?php $_helper = Mage::helper('transsmart_shipping'); ?>
 <?php $_quote = $this->getQuote(); ?>
-<?php $_shippingAddress = $_quote->getShippingAddress(); ?>
 <?php $_pickupLocation = Mage::helper('transsmart_shipping/pickupaddress')->getPickupAddressFromQuote($_quote); ?>
 
-<?php if (!$_helper->isTranssmartShippingMethod($_shippingAddress->getShippingMethod()) || !$_pickupLocation): ?>
+<?php if (!$_helper->isTranssmartQuote($_quote) || !$_pickupLocation): ?>
     <?php return ''; ?>
 <?php endif; ?>
 

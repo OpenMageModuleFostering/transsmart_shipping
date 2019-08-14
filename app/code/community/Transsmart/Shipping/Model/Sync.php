@@ -142,6 +142,11 @@ class Transsmart_Shipping_Model_Sync extends Mage_Core_Model_Abstract
                 $model = Mage::getModel('transsmart_shipping/carrierprofile');
                 $mappedData = $model->mapApiKeysToDbColumns($apiItem);
 
+                // EnableLocationSelect is returned as Y/N from the API, Map that to 1 and 0
+                if (isset($mappedData['enable_location_select'])) {
+                    $mappedData['enable_location_select'] = $mappedData['enable_location_select'] == 'Y' ? 1 : 0;
+                }
+
                 $model->setData($mappedData);
                 $model->save();
 
@@ -573,11 +578,11 @@ class Transsmart_Shipping_Model_Sync extends Mage_Core_Model_Abstract
             $queryDefinition = array(
                 'Carriers'      => array(),
                 'CostCenters'   => array(),
-                'SubAccounts'   => array(),
+                'SubCustomers'  => array(),
                 'DateTimeFrom'  => $this->_convertGmtToCet($sinceTime),
                 'DateTimeTo'    => $this->_convertGmtToCet(Mage::getModel('core/date')->gmtDate()),
                 'MaxResults'    => 100,
-                'IsIncremental' => false
+                'IsIncremental' => true
             );
             $response = $this->getApiClient()->getStatus($queryDefinition);
             foreach ($response as $_item) {
@@ -656,6 +661,14 @@ class Transsmart_Shipping_Model_Sync extends Mage_Core_Model_Abstract
         }
 
         if (is_array($documentData)) {
+            if (array_key_exists('Id', $documentData)) {
+                $value = $documentData['Id'];
+                if ($shipment->getData('transsmart_document_id') != $value) {
+                    $shipment->setData('transsmart_document_id', $value);
+                    $updatedAttributes[] = 'transsmart_document_id';
+                }
+            }
+
             if (array_key_exists('Status', $documentData)) {
                 $value = $documentData['Status'];
                 if ($shipment->getData('transsmart_status') != $value) {
@@ -664,11 +677,43 @@ class Transsmart_Shipping_Model_Sync extends Mage_Core_Model_Abstract
                 }
             }
 
+            if (array_key_exists('ShipmentError', $documentData)) {
+                $value = $documentData['ShipmentError'];
+                if ($shipment->getData('transsmart_shipment_error') != $value) {
+                    $shipment->setData('transsmart_shipment_error', $value);
+                    $updatedAttributes[] = 'transsmart_shipment_error';
+                }
+            }
+
             if (array_key_exists('TrackingUrl', $documentData)) {
                 $value = $documentData['TrackingUrl'];
                 if ($shipment->getData('transsmart_tracking_url') != $value) {
                     $shipment->setData('transsmart_tracking_url', $value);
                     $updatedAttributes[] = 'transsmart_tracking_url';
+                }
+            }
+
+            if (array_key_exists('CarrierId', $documentData)) {
+                $value = $documentData['CarrierId'];
+                if ($shipment->getData('transsmart_final_carrier_id') != $value) {
+                    $shipment->setData('transsmart_final_carrier_id', $value);
+                    $updatedAttributes[] = 'transsmart_final_carrier_id';
+                }
+            }
+
+            if (array_key_exists('ServiceLevelTimeId', $documentData)) {
+                $value = $documentData['ServiceLevelTimeId'];
+                if ($shipment->getData('transsmart_final_servicelevel_time_id') != $value) {
+                    $shipment->setData('transsmart_final_servicelevel_time_id', $value);
+                    $updatedAttributes[] = 'transsmart_final_servicelevel_time_id';
+                }
+            }
+
+            if (array_key_exists('ServiceLevelOtherId', $documentData)) {
+                $value = $documentData['ServiceLevelOtherId'];
+                if ($shipment->getData('transsmart_final_servicelevel_other_id') != $value) {
+                    $shipment->setData('transsmart_final_servicelevel_other_id', $value);
+                    $updatedAttributes[] = 'transsmart_final_servicelevel_other_id';
                 }
             }
         }

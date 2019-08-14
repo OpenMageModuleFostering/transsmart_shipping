@@ -78,6 +78,8 @@ class Transsmart_Shipping_Model_Shipping_Carrier_Abstract
             $_method->setPrice($_shippingPrice);
             $_method->setCost($_shippingPrice);
 
+            $_method->setTranssmartCarrierprofileId($_carrierprofile->getId());
+
             $result->append($_method);
         }
 

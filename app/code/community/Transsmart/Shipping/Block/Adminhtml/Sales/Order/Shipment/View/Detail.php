@@ -57,6 +57,48 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_View_Detail exten
     }
 
     /**
+     * Get name of carrier for current shipment.
+     *
+     * @return string
+     */
+    public function getCarrier()
+    {
+        $carrier = Mage::getResourceSingleton('transsmart_shipping/carrier_collection')
+            ->getItemById($this->getShipment()->getTranssmartFinalCarrierId());
+        if ($carrier) {
+            return $carrier->getName();
+        }
+    }
+
+    /**
+     * Get name of servicelevel time for current shipment.
+     *
+     * @return string
+     */
+    public function getServicelevelTime()
+    {
+        $servicelevelTime = Mage::getResourceSingleton('transsmart_shipping/servicelevel_time_collection')
+            ->getItemById($this->getShipment()->getTranssmartFinalServicelevelTimeId());
+        if ($servicelevelTime) {
+            return $servicelevelTime->getName();
+        }
+    }
+
+    /**
+     * Get name of servicelevel other for current shipment.
+     *
+     * @return string
+     */
+    public function getServicelevelOther()
+    {
+        $servicelevelOther = Mage::getResourceSingleton('transsmart_shipping/servicelevel_other_collection')
+            ->getItemById($this->getShipment()->getTranssmartFinalServicelevelOtherId());
+        if ($servicelevelOther) {
+            return $servicelevelOther->getName();
+        }
+    }
+
+    /**
      * Get name of shipment location for current shipment.
      *
      * @return string

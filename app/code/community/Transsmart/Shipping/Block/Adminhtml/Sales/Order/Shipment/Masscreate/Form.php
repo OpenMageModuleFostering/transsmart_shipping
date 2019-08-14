@@ -123,14 +123,20 @@ class Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Masscreate_Form e
      */
     public function getAvailableCarrierprofiles()
     {
-        $carrierprofiles = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')->toOptionHash();
-        foreach ($carrierprofiles as $_id => $_name) {
-            $_method = Mage::getStoreConfig('transsmart_carrier_profiles/carrierprofile_' . $_id . '/method');
-            if ($_method == Transsmart_Shipping_Model_Adminhtml_System_Config_Source_Method::PICKUP) {
-                unset($carrierprofiles[$_id]);
+        $carrierprofiles = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+            ->joinCarrier()
+            ->joinServicelevelTime()
+            ->joinServicelevelOther();
+
+        $res = array();
+        /** @var Transsmart_Shipping_Model_Carrierprofile $_carrierprofile */
+        foreach ($carrierprofiles as $_carrierprofile) {
+            if (!$_carrierprofile->isLocationSelectEnabled()) {
+                $res[$_carrierprofile->getData('carrierprofile_id')] = $_carrierprofile->getName();
             }
         }
-        return $carrierprofiles;
+
+        return $res;
     }
 
     /**

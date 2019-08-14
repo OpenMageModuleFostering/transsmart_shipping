@@ -11,7 +11,7 @@
 <?php $_shipment = Mage::registry('current_shipment'); ?>
 <?php $_order = $_shipment->getOrder(); ?>
 
-<?php if (!$_helper->isTranssmartShippingMethod($_order->getShippingMethod())): ?>
+<?php if (!$_helper->isTranssmartOrder($_order)): ?>
     <?php return ''; ?>
 <?php endif; ?>
 

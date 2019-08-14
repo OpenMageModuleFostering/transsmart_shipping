@@ -27,9 +27,8 @@ class Transsmart_Shipping_Model_Observer
             return;
         }
 
-        // does it use one of our shipping methods?
-        $shippingMethod = $shipment->getOrder()->getShippingMethod();
-        if (!Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+        // is this a Transsmart order?
+        if (!Mage::helper('transsmart_shipping')->isTranssmartOrder($shipment->getOrder())) {
             return;
         }
 
@@ -122,16 +121,13 @@ class Transsmart_Shipping_Model_Observer
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $observer->getQuote();
 
-        $shippingAddress = $quote->getShippingAddress();
-        $shippingMethod = $shippingAddress->getShippingMethod();
-
         // remove the pickup addresses, if there are any
         Mage::helper('transsmart_shipping/pickupaddress')->removePickupAddressFromQuote($quote);
 
-        // try to load the carrierprofile based on the shipping method
-        $carrierProfile = Mage::getModel('transsmart_shipping/carrierprofile')
-            ->loadByShippingMethodCode($shippingMethod);
-        if (!$carrierProfile->getId() || !$carrierProfile->isLocationSelectEnabled()) {
+        // check if a pickup address is required
+        // totalsCollected is false here, because shipping method is updated but the totals are not collected yet.
+        /* @see Mage_Checkout_OnepageController::saveShippingMethodAction */
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote, false)) {
             // not a Transsmart shipping method with enabled location selector
             return;
         }
@@ -187,15 +183,11 @@ class Transsmart_Shipping_Model_Observer
 
         $quote = $controllerAction->getOnepage()->getQuote();
 
-        $shippingMethod = $request->getPost('shipping_method', $quote->getShippingAddress()->getShippingMethod());
-
         // remove the pickup addresses, if there are any
         Mage::helper('transsmart_shipping/pickupaddress')->removePickupAddressFromQuote($quote);
 
-        // try to load the carrierprofile based on the shipping method
-        $carrierProfile = Mage::getModel('transsmart_shipping/carrierprofile')
-            ->loadByShippingMethodCode($shippingMethod);
-        if (!$carrierProfile->getId() || !$carrierProfile->isLocationSelectEnabled()) {
+        // check if a pickup address is required
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote)) {
             // not a Transsmart shipping method with enabled location selector
             return;
         }
@@ -234,10 +226,8 @@ class Transsmart_Shipping_Model_Observer
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $observer->getQuote();
 
-        $shippingMethod = $quote->getShippingAddress()->getShippingMethod();
-
-        // check whether this is a Transsmart shipping method
-        if (!Mage::helper('transsmart_shipping')->isTranssmartPickup($shippingMethod)) {
+        // check whether the quote uses a Transsmart shipping method with a pickup address
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote)) {
             return;
         }
 
@@ -264,8 +254,11 @@ class Transsmart_Shipping_Model_Observer
         /** @var Mage_Sales_Model_Order $order */
         $order = $observer->getOrder();
 
-        // check whether this is a Transsmart shipping method
-        if (!Mage::helper('transsmart_shipping')->isTranssmartPickup($order->getShippingMethod())) {
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $observer->getQuote();
+
+        // check whether the quote uses a Transsmart shipping method with a pickup address
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote)) {
             return;
         }
 
@@ -289,8 +282,8 @@ class Transsmart_Shipping_Model_Observer
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $observer->getQuote();
 
-        // check whether this is a Transsmart shipping method
-        if (!Mage::helper('transsmart_shipping')->isTranssmartPickup($order->getShippingMethod())) {
+        // check whether the quote uses a Transsmart shipping method with a pickup address
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote)) {
             return;
         }
 

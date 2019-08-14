@@ -45,11 +45,6 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
                 $_group->$_key = $_value;
             }
 
-            // remove location_select if carrier does not allow location selector
-            if (!$_carrierprofile->getCarrierLocationSelect()) {
-                unset($_group->fields->location_select);
-            }
-
             $groups->addChild('carrierprofile_' . $_carrierprofile->getId())
                 ->extend($_group);
         }
@@ -79,10 +74,15 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $orderCreateModel->getQuote();
 
-        // try to load the carrierprofile based on the shipping method
-        $carrierProfile = Mage::getModel('transsmart_shipping/carrierprofile')
-            ->loadByShippingMethodCode($orderCreateModel->getShippingMethod());
-        if (!$carrierProfile->getId() || !$carrierProfile->isLocationSelectEnabled()) {
+        // check if Mage_Adminhtml_Model_Sales_Order_Create::setShippingAsBilling resets transsmart_carrierprofile_id
+        $shippingAddress = $quote->getShippingAddress();
+        if (!$shippingAddress->getData('transsmart_carrierprofile_id') &&
+             $shippingAddress->getOrigData('transsmart_carrierprofile_id')) {
+            return;
+        }
+
+        // check if a pickup address is required
+        if (!Mage::helper('transsmart_shipping')->isLocationSelectQuote($quote)) {
             // location selector disabled. remove the pickup addresses, if there are any
             Mage::helper('transsmart_shipping/pickupaddress')->removePickupAddressFromQuote($quote);
             return;
@@ -118,9 +118,8 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
         $block = $observer->getEvent()->getBlock();
 
         if ($block instanceof Mage_Adminhtml_Block_Sales_Order_Shipment_Create_Form) {
-            // verify shipping method
-            $shippingMethod = $block->getOrder()->getShippingMethod();
-            if (!Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+            // is this a Transsmart order?
+            if (!Mage::helper('transsmart_shipping')->isTranssmartOrder($block->getOrder())) {
                 return;
             }
 
@@ -131,9 +130,8 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
             ));
         }
         elseif ($block instanceof Mage_Adminhtml_Block_Sales_Order_Shipment_Create_Items) {
-            // verify shipping method
-            $shippingMethod = $block->getOrder()->getShippingMethod();
-            if (!Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+            // is this a Transsmart order?
+            if (!Mage::helper('transsmart_shipping')->isTranssmartOrder($block->getOrder())) {
                 return;
             }
 
@@ -156,9 +154,8 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
             $submitButton->setLabel(Mage::helper('sales')->__('Create Shipment'));
         }
         elseif ($block instanceof Mage_Adminhtml_Block_Sales_Order_Shipment_View_Form) {
-            // verify shipping method
-            $shippingMethod = $block->getOrder()->getShippingMethod();
-            if (!Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+            // is this a Transsmart order?
+            if (!Mage::helper('transsmart_shipping')->isTranssmartOrder($block->getOrder())) {
                 return;
             }
 
@@ -190,9 +187,8 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
             return;
         }
 
-        // does it use one of our shipping methods?
-        $shippingMethod = $shipment->getOrder()->getShippingMethod();
-        if (!Mage::helper('transsmart_shipping')->isTranssmartShippingMethod($shippingMethod)) {
+        // is this a Transsmart order?
+        if (!Mage::helper('transsmart_shipping')->isTranssmartOrder($shipment->getOrder())) {
             return;
         }
 
@@ -203,8 +199,8 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
         $shipmentPostData = $frontController->getRequest()->getPost('shipment');
 
         // update the shipment model
-        if (!Mage::helper('transsmart_shipping')->isTranssmartPickup($shippingMethod)) {
-            if (!empty($shipmentPostData['transsmart_carrierprofile_id'])) {
+        if (!empty($shipmentPostData['transsmart_carrierprofile_id'])) {
+            if (Mage::helper('transsmart_shipping/shipment')->getAllowChangeCarrierprofile($shipment)) {
                 $shipment->setTranssmartCarrierprofileId($shipmentPostData['transsmart_carrierprofile_id']);
             }
         }

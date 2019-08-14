@@ -5,45 +5,59 @@
  * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
  */
 ?>
-<?php $_helper = Mage::helper('transsmart_shipping'); ?>
-<?php $_order = Mage::registry('current_order'); ?>
-
-<?php if (!$_helper->isTranssmartShippingMethod($_order->getShippingMethod())): ?>
-    <?php return ''; ?>
-<?php endif; ?>
-
-<?php $_pickupAddress = Mage::helper('transsmart_shipping/pickupaddress')->getPickupAddressFromOrder($_order); ?>
-<?php if (!$_pickupAddress): ?>
-    <?php return ''; ?>
-<?php endif; ?>
-
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_View_Detail $this */ ?>
+<?php $_pickupAddress = $this->getPickupAddress(); ?>
+<?php if ($_pickupAddress): ?>
 <div class="three-column box-right" id="transsmart_pickup_address">
     <!--Transsmart Pickup Address-->
     <div class="entry-edit">
         <div class="entry-edit-head">
             <h4 class="icon-head head-transsmart-pickup-address"><?php echo $this->__('Pickup Address'); ?></h4>
+            <?php if ($this->allowChangePickupAddress()): ?>
             <div class="tools"><a href="<?php echo $this->getUrl('adminhtml/sales_order/address', array('address_id' => $_pickupAddress->getId())); ?>"><?php echo $this->__('Edit'); ?></a></div>
+            <?php endif; ?>
         </div>
         <fieldset>
             <address><?php echo $_pickupAddress->format('html'); ?></address>
         </fieldset>
     </div>
 </div>
+<?php endif; ?>
+
+<div id="transsmart_shipment_detail">
+    <table cellspacing="0" class="form-list transsmart-shipment-detail">
+        <tbody>
+        <tr>
+            <td class="label"><label for="tss_carrierprofile"><?php echo $this->__('Carrier Profile'); ?></label></td>
+            <td class="value" colspan="3">
+                <strong><?php echo $this->escapeHtml($this->getCarrierprofile()); ?></strong>
+            </td>
+        </tr>
+    </table>
+</div>
 
 <script type="text/javascript">
     //<[CDATA[
     document.observe('dom:loaded', function() {
+        <?php if ($_pickupAddress): ?>
         var billingAddress = $$('#sales_order_view_tabs_order_info_content .box-left')[1];
         var shippingAddress = $$('#sales_order_view_tabs_order_info_content .box-right')[1];
 
         billingAddress.addClassName('three-column');
         shippingAddress.addClassName('three-column box-middle')
             .removeClassName('box-right')
-            .insert(
-            {
-                after : $('transsmart_pickup_address')
+            .insert({
+                after: $('transsmart_pickup_address')
             }
         );
+        <?php endif; ?>
+
+        var shippingMethod = $$('#sales_order_view_tabs_order_info_content .head-shipping-method')[0];
+        if (shippingMethod) {
+            shippingMethod.up('.entry-edit').down('fieldset').insert({
+                bottom: $('transsmart_shipment_detail')
+            });
+        }
     });
     //]]>
 </script>

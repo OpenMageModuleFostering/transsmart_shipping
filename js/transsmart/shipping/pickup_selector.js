@@ -9,10 +9,9 @@ if (!Transsmart.Shipping) Transsmart.Shipping = { };
 Transsmart.Shipping.Pickup = Class.create({
 
     /**
-     * Define configuration for the pickup shipping method
+     * Define configuration for the location selector
      */
     config: {
-        shippingMethodName: 'transsmartpickup',
         shippingPickupContainerId: 'tss-location-selector',
         shippingMethodLoadDivId: 'checkout-shipping-method-load',
         locationsListDivId: 'tss-ls-locations',
@@ -20,12 +19,14 @@ Transsmart.Shipping.Pickup = Class.create({
         selectButtonId: 'tss-ls-select',
         closeButtonId: 'tss-ls-close',
         shippingPickupSelectButtonId: 'tss-ls-select-location',
-        selectedLocationDivId: 'tss-ls-selected-location-info'
+        selectedLocationDivId: 'tss-ls-selected-location-info',
+        shippingMethods: {}
     },
 
     googleMaps: null,
     googleGeocoder: null,
     selectedShippingMethod: null,
+    selectedCarrierProfile: null,
     markers: [],
     infoWindow: null,
     selectedMarker: null,
@@ -49,14 +50,6 @@ Transsmart.Shipping.Pickup = Class.create({
         // Set the view url
         this.config.lookupUrl = config.lookupUrl;
 
-        // Check whether the carrierProfileIds is provided
-        if (typeof config == 'undefined' || typeof config.carrierProfileIds == 'undefined') {
-            Transsmart.Logger.log('Transsmart_Shipping: Missing carrierProfileIds in the supplied config');
-            return;
-        }
-
-        this.config.carrierProfileIds = config.carrierProfileIds;
-
         this.attachListenHandler();
         this.attachFilterHandlers();
         this.attachSearchHandler();
@@ -65,9 +58,17 @@ Transsmart.Shipping.Pickup = Class.create({
         document.observe('dom:loaded', function() {
             Event.observe(window, 'resize', this.onWindowResize.bind(this));
         }.bind(this));
+    },
 
-        // observe ajax update event
-        Ajax.Responders.register({ onComplete: this.onAjaxComplete.bind(this) });
+    /**
+     * Set shipping methods.
+     *
+     * @param array methods
+     */
+    setMethods: function (methods) {
+        Transsmart.Logger.log('Update shipping methods: ', methods);
+        this.config.shippingMethods = methods;
+        this.updateShippingMethods();
     },
 
     /**
@@ -106,7 +107,12 @@ Transsmart.Shipping.Pickup = Class.create({
                     }
 
                     if (section == 'shipping_method') {
-                        this.updateShippingMethods();
+                        try {
+                            this.updateShippingMethods();
+                        }
+                        catch (error) {
+                            Transsmart.Logger.log('Transsmart_Shipping error: ' + error);
+                        }
                     }
 
                     parentGotoSection(section, reloadProgressBlock);
@@ -116,13 +122,6 @@ Transsmart.Shipping.Pickup = Class.create({
             // The shipping methods are generated dynamically
             // So we need to observe for dom changes and then trigger the click event based on that
             $(document).on('click', 'input[name=shipping_method]', function (event, element) {
-                // Skip shipping methods that do not match the shipping method name
-                if (element.value && element.value.indexOf(self.config.shippingMethodName) == -1) {
-                    this.removePickupDiv();
-                    return;
-                }
-
-                this.selectedShippingMethod = element.value;
                 this.attachPickupDiv(element);
             }.bind(this));
 
@@ -135,21 +134,11 @@ Transsmart.Shipping.Pickup = Class.create({
         }.bind(this));
     },
 
-    onAjaxComplete: function () {
-        this.updateShippingMethods();
-    },
-
     updateShippingMethods: function () {
         // Check which shipping method has been selected
         var checkedShippingMethods = $$('input[name=shipping_method]:checked');
-
         if (checkedShippingMethods.length != 0) {
-            // The pre-selected shipping method is the pickup one.
-            // Attach the pickup div to the radio button
-            if (checkedShippingMethods[0].value.indexOf(this.config.shippingMethodName) != -1) {
-                this.selectedShippingMethod = checkedShippingMethods[0].value;
-                this.attachPickupDiv(checkedShippingMethods[0]);
-            }
+            this.attachPickupDiv(checkedShippingMethods[0]);
         }
     },
 
@@ -225,6 +214,9 @@ Transsmart.Shipping.Pickup = Class.create({
      * @param inputElement The input radio element that's part of a carrier
      */
     attachPickupDiv: function(inputElement) {
+        this.selectedShippingMethod = inputElement.value;
+        this.selectedCarrierProfile = null;
+
         var containerItem = $(this.config.shippingPickupContainerId);
 
         // Remove the shipping pickup div if it exists
@@ -232,19 +224,14 @@ Transsmart.Shipping.Pickup = Class.create({
             containerItem.remove();
         }
 
-        var valueBits = inputElement.value.match(/transsmartpickup_carrierprofile_([0-9]+)/);
-
-        // Nothing to attach, it doesn't match
-        if (valueBits == null || valueBits.length != 2) {
+        // Does this shipping method have the location selector enabled?
+        if (typeof this.config.shippingMethods[this.selectedShippingMethod] == 'undefined') {
+            Transsmart.Logger.log('Shipping method ' + this.selectedShippingMethod + ' does not allow location selector');
+            Transsmart.Logger.log('Allowed location selectors are: ', this.config.shippingMethods);
             return;
         }
 
-        // Not a carrierprofile that has location selector enabled
-        if (this.config.carrierProfileIds.indexOf(valueBits[1]) == -1) {
-            Transsmart.Logger.log('Carrier profile with id: ' + valueBits[1] + ' does not allow location selector');
-            Transsmart.Logger.log('Allowed location selectors are: ', this.config.carrierProfileIds);
-            return;
-        }
+        this.selectedCarrierProfile = this.config.shippingMethods[this.selectedShippingMethod];
 
         // Find the container for transsmart pickup shipping method
         var shippingMethodContainer = this.getButtonContainer(inputElement);
@@ -452,7 +439,7 @@ Transsmart.Shipping.Pickup = Class.create({
         // Attach the selected shipping method
         var url  = this.config.lookupUrl;
         var params = {
-            shipping_method: this.selectedShippingMethod,
+            carrierprofile: this.selectedCarrierProfile
         };
 
         if (searchValue != null) {

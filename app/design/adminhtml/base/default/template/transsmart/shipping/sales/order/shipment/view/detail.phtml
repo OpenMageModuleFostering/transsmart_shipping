@@ -9,8 +9,14 @@
 <table cellspacing="0" class="form-list transsmart-shipment-detail">
     <tbody>
         <tr>
-            <td class="label"><label><?php echo $this->escapeHtml($this->__('Carrier Profile')); ?></label></td>
-            <td class="value" colspan="3"><strong><?php echo $this->escapeHtml($this->getCarrierprofile()); ?></strong></td>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Executing Carrier')); ?></label></td>
+            <td class="value" colspan="3"><strong><?php echo $this->escapeHtml($this->getCarrier()); ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Servicelevel Time')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getServicelevelTime()); ?></strong></td>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Servicelevel Other')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getServicelevelOther()); ?></strong></td>
         </tr>
         <tr>
             <td class="label"><label><?php echo $this->escapeHtml($this->__('Shipment Location')); ?></label></td>
@@ -28,6 +34,16 @@
 </table>
 
 <?php echo $this->getChildHtml('package'); ?>
+
+<?php if (($shipmentError = $this->getShipment()->getTranssmartShipmentError())): ?>
+    <ul class="messages">
+        <li class="error-msg">
+            <ul>
+                <li><span><?php echo $this->escapeHtml($shipmentError); ?></span></li>
+            </ul>
+        </li>
+    </ul>
+<?php endif; ?>
 
 <table cellspacing="0" class="form-list transsmart-shipment-detail-extra">
     <tbody>

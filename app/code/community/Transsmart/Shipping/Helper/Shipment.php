@@ -17,6 +17,7 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
     const XML_PATH_MAPPING_STREET            = 'transsmart_shipping/mapping/street';
     const XML_PATH_MAPPING_STREETNO          = 'transsmart_shipping/mapping/streetno';
     const XML_PATH_MAPPING_STREET2           = 'transsmart_shipping/mapping/street2';
+    const XML_PATH_MAPPING_DESCRIPTION       = 'transsmart_shipping/mapping/description';
     const XML_PATH_MAPPING_COUNTRY_OF_ORIGIN = 'transsmart_shipping/mapping/country_of_origin';
     const XML_PATH_MAPPING_HS_CODE           = 'transsmart_shipping/mapping/hs_code';
     const XML_PATH_MAPPING_REASON_OF_EXPORT  = 'transsmart_shipping/mapping/reason_of_export';
@@ -50,6 +51,34 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Returns TRUE if the carrierprofile may be changed. This is not allowed when the location selector is enabled.
+     *
+     * @param Mage_Sales_Model_Order_Shipment $shipment
+     * @return bool
+     */
+    public function getAllowChangeCarrierprofile($shipment)
+    {
+        $enableLocationSelect = false;
+
+        if ($shipment) {
+            if (($shippingAddress = $shipment->getOrder()->getShippingAddress())) {
+                /** @see Transsmart_Shipping_Model_Sales_Quote_Address_Total_Shipping::collect */
+                if (($carrierprofileId = $shippingAddress->getTranssmartCarrierprofileId())) {
+                    /** @var Transsmart_Shipping_Model_Carrierprofile $carrierprofile */
+                    $carrierprofile = Mage::getResourceSingleton('transsmart_shipping/carrierprofile_collection')
+                        ->joinCarrier()
+                        ->getItemById($carrierprofileId);
+                    if ($carrierprofile) {
+                        $enableLocationSelect = $carrierprofile->isLocationSelectEnabled();
+                    }
+                }
+            }
+        }
+
+        return !$enableLocationSelect;
+    }
+
+    /**
      * Get configured default carrierprofile for the given shipment or store.
      *
      * @param Mage_Sales_Model_Order_Shipment|null $shipment
@@ -60,12 +89,20 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
     {
         $defaultValue = false;
         if ($shipment instanceof Mage_Sales_Model_Order_Shipment) {
-            $shippingMethod = $shipment->getOrder()->getShippingMethod(false);
-            $carrierprofile = Mage::getModel('transsmart_shipping/carrierprofile')
-                ->loadByShippingMethodCode($shippingMethod);
-            $defaultValue = $carrierprofile->getId();
+            // carrierprofile stored in shipping address
+            if (($shippingAddress = $shipment->getShippingAddress())) {
+                /** @see Transsmart_Shipping_Model_Sales_Quote_Address_Total_Shipping::collect */
+                $defaultValue = $shippingAddress->getTranssmartCarrierprofileId();
+            }
             if (!$defaultValue) {
-                $defaultValue = Mage::getStoreConfig(self::XML_PATH_DEFAULT_CARRIERPROFILE, $shipment->getStore());
+                // carrierprofile based on shipping method
+                $shippingMethod = $shipment->getOrder()->getShippingMethod(false);
+                $carrierprofile = Mage::getModel('transsmart_shipping/carrierprofile')
+                    ->loadByShippingMethodCode($shippingMethod);
+                $defaultValue = $carrierprofile->getId();
+                if (!$defaultValue) {
+                    $defaultValue = Mage::getStoreConfig(self::XML_PATH_DEFAULT_CARRIERPROFILE, $shipment->getStore());
+                }
             }
         }
         if (!$defaultValue) {
@@ -333,9 +370,9 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
             $shipmentValue += $_item->getPrice() * $_item->getQty();
 
             $_line = array(
-                'ArticleId'         => $_item->getSku(),
-                'ArticleName'       => $stringHelper->substr($_item->getName(), 0, 45),
-                'Description'       => $stringHelper->substr($_item->getDescription(), 0, 510),
+                'ArticleId'         => $stringHelper->substr($_item->getSku(), 0, 64),
+                'ArticleName'       => $stringHelper->substr($_item->getName(), 0, 128),
+                'Description'       => $stringHelper->substr($_item->getShortDescription(), 0, 256),
                 'Price'             => $_item->getPrice(),
                 'Currency'          => $store->getCurrentCurrencyCode(),
                 'Quantity'          => $_item->getQty(),
@@ -346,7 +383,7 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
             );
 
             $_additionalFields = array(
-                'Description'       => 'description',
+                'Description'       => Mage::getStoreConfig(self::XML_PATH_MAPPING_DESCRIPTION,       $store),
                 'CountryOfOrigin'   => Mage::getStoreConfig(self::XML_PATH_MAPPING_COUNTRY_OF_ORIGIN, $store),
                 'HSCode'            => Mage::getStoreConfig(self::XML_PATH_MAPPING_HS_CODE,           $store),
                 'ReasonOfExport'    => Mage::getStoreConfig(self::XML_PATH_MAPPING_REASON_OF_EXPORT,  $store),
@@ -366,7 +403,8 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
                         $_value = $_product->getData($_attributeCode);
                     }
                     if ($_value) {
-                        $_line[$_field] = $_value;
+                        $_maxLength = ($_field == 'Description') ? 256 : 64;
+                        $_line[$_field] = $stringHelper->substr($_value, 0, $_maxLength);
                     }
                 }
             }
@@ -437,13 +475,7 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
 
         // save document ID and status into shipment record
         if (isset($response['Id']) && isset($response['Status'])) {
-            $shipment->setTranssmartDocumentId($response['Id']);
-            $shipment->setTranssmartStatus($response['Status']);
-
-            $shipment->getResource()->saveAttribute($shipment, array(
-                'transsmart_document_id',
-                'transsmart_status'
-            ));
+            Mage::getSingleton('transsmart_shipping/sync')->syncShipment($shipment, $response);
 
             // book and print if flags indicate so
             $flags = (int)$shipment->getTranssmartFlags();

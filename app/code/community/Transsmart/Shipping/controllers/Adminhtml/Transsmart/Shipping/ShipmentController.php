@@ -98,6 +98,9 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
                 $_order->setCustomerNoteNotify(!empty($data['send_email']))
                     ->setIsInProcess(true);
 
+                /** @see Transsmart_Shipping_Model_Adminhtml_Observer::salesOrderShipmentSaveAfter */
+                $_shipment->setData('transsmart_prevent_export_on_save', true);
+
                 // save changes to the shipment and order into database
                 Mage::getModel('core/resource_transaction')
                     ->addObject($_shipment)
@@ -121,6 +124,8 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
         }
         if ($successCount > 0) {
             $this->_getSession()->addSuccess($this->__('Successfully created %s shipment(s)!', $successCount));
+
+            Mage::helper('transsmart_shipping/shipment')->doMassExport();
         }
 
         // redirect user
@@ -169,26 +174,37 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
         $totalCount = 0;
         $successCount = 0;
         if ($shipmentCollection) {
+            try {
+                $shipmentHelper->doMassBookAndPrint($shipmentCollection);
+            }
+            catch (Mage_Core_Exception $_exception) {
+                $this->_getSession()->addError(
+                    $this->__(
+                        'One or more shipments could not be booked and printed: %s',
+                        $_exception->getMessage()
+                    )
+                );
+            }
+
             /** @var Mage_Sales_Model_Order_Shipment $_shipment */
             foreach ($shipmentCollection as $_shipment) {
-                if (!$_shipment->getTranssmartDocumentId()) {
-                    continue;
-                }
-                $totalCount++;
+                // check if Transsmart shipping labels have been printed
+                if ($_shipment->getTranssmartDocumentId()) {
+                    $totalCount++;
 
-                try {
-                    $shipmentHelper->doBookAndPrint($_shipment);
-                    $successCount++;
-                }
-                catch (Mage_Core_Exception $_exception) {
-                    $this->_getSession()->addError(
-                        $this->__(
-                            'Shipment #%s for order #%s could not be booked and printed: %s',
-                            $_shipment->getIncrementId(),
-                            $_shipment->getOrder()->getIncrementId(),
-                            $_exception->getMessage()
-                        )
-                    );
+                    if ($_shipment->getTranssmartStatus() == 'LABL') {
+                        $successCount++;
+                    }
+                    else {
+                        $this->_getSession()->addError(
+                            $this->__(
+                                'Shipment #%s for order #%s could not be booked and printed: %s',
+                                $_shipment->getIncrementId(),
+                                $_shipment->getOrder()->getIncrementId(),
+                                'Error' // TODO: use ShipmentError field
+                            )
+                        );
+                    }
                 }
             }
         }
@@ -295,22 +311,34 @@ class Transsmart_Shipping_Adminhtml_Transsmart_Shipping_ShipmentController exten
         $totalCount = 0;
         $successCount = 0;
         if ($shipmentCollection) {
+            try {
+                $shipmentHelper->doMassLabel($shipmentCollection);
+            }
+            catch (Mage_Core_Exception $_exception) {
+                $this->_getSession()->addError(
+                    $this->__(
+                        'One ore more shipments could not be printed: %s',
+                        $_exception->getMessage()
+                    )
+                );
+            }
+
             /** @var Mage_Sales_Model_Order_Shipment $_shipment */
             foreach ($shipmentCollection as $_shipment) {
-                // print Transsmart shipping labels
+                // check if Transsmart shipping labels have been printed
                 if ($_shipment->getTranssmartDocumentId()) {
-                    try {
-                        $totalCount++;
-                        $shipmentHelper->doLabel($_shipment);
+                    $totalCount++;
+
+                    if ($_shipment->getTranssmartStatus() == 'LABL') {
                         $successCount++;
                     }
-                    catch (Mage_Core_Exception $_exception) {
+                    else {
                         $this->_getSession()->addError(
                             $this->__(
                                 'Shipment #%s for order #%s could not be printed: %s',
                                 $_shipment->getIncrementId(),
                                 $_shipment->getOrder()->getIncrementId(),
-                                $_exception->getMessage()
+                                'Error' // TODO: use ShipmentError field
                             )
                         );
                     }

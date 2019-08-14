@@ -70,7 +70,7 @@ class Transsmart_Shipping_Model_Client
             CURLINFO_HEADER_OUT    => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT        => 20,
         );
 
         if (!is_null($requestBody)) {
@@ -640,7 +640,7 @@ class Transsmart_Shipping_Model_Client
     }
 
     /**
-     * @param int $id
+     * @param int|array $id
      * @param string $username
      * @param int|null $pdf
      * @param int|null $downloadonly
@@ -651,20 +651,24 @@ class Transsmart_Shipping_Model_Client
      */
     public function doLabel($id, $username, $pdf = null, $downloadonly = null, $qzhost = null, $selectedprinter = null)
     {
-        $parameters = array(
-            'id'       => $id,
-            'username' => $username,
-        );
-        if (!is_null($pdf)) {
+        $parameters = array();
+        if (!is_array($id)) {
+            $parameters['id'] = $id;
+        }
+        else {
+            $parameters['docIds'] = implode(',', $id);
+        }
+        $parameters['username'] = $username;
+        if (!empty($pdf)) {
             $parameters['pdf'] = $pdf;
         }
-        if (!is_null($downloadonly)) {
+        if (!empty($downloadonly)) {
             $parameters['downloadonly'] = $downloadonly;
         }
-        if (!is_null($qzhost)) {
+        if (!empty($qzhost)) {
             $parameters['qzhost'] = $qzhost;
         }
-        if (!is_null($selectedprinter)) {
+        if (!empty($selectedprinter)) {
             $parameters['selectedprinter'] = $selectedprinter;
         }
 
@@ -678,7 +682,7 @@ class Transsmart_Shipping_Model_Client
     }
 
     /**
-     * @param int $id
+     * @param int|array $id
      * @param string $username
      * @param int|null $downloadonly
      * @param string|null $qzhost
@@ -688,17 +692,21 @@ class Transsmart_Shipping_Model_Client
      */
     public function doBookAndPrint($id, $username, $downloadonly = null, $qzhost = null, $selectedprinter = null)
     {
-        $parameters = array(
-            'id'       => $id,
-            'username' => $username,
-        );
-        if (!is_null($downloadonly)) {
+        $parameters = array();
+        if (!is_array($id)) {
+            $parameters['id'] = $id;
+        }
+        else {
+            $parameters['docIds'] = implode(',', $id);
+        }
+        $parameters['username'] = $username;
+        if (!empty($downloadonly)) {
             $parameters['downloadonly'] = $downloadonly;
         }
-        if (!is_null($qzhost)) {
+        if (!empty($qzhost)) {
             $parameters['qzhost'] = $qzhost;
         }
-        if (!is_null($selectedprinter)) {
+        if (!empty($selectedprinter)) {
             $parameters['selectedprinter'] = $selectedprinter;
         }
 

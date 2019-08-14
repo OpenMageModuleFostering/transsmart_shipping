@@ -268,8 +268,9 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
      * Export the given shipment to the Transsmart API.
      *
      * @param Mage_Sales_Model_Order_Shipment $shipment
+     * @param bool $allowPrint
      */
-    public function doExport($shipment)
+    public function doExport($shipment, $allowPrint = true)
     {
         // is it already exported?
         if ($shipment->getTranssmartDocumentId()) {
@@ -441,7 +442,12 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
             $flags = (int)$shipment->getTranssmartFlags();
             try {
                 if (($flags & Transsmart_Shipping_Helper_Shipment::FLAG_BOOKANDPRINT_ON_CREATE)) {
-                    $this->doBookAndPrint($shipment);
+                    if ($allowPrint) {
+                        $this->doBookAndPrint($shipment);
+                    }
+                    else {
+                        $this->doBooking($shipment);
+                    }
                 }
                 elseif (($flags & Transsmart_Shipping_Helper_Shipment::FLAG_BOOK_ON_CREATE)) {
                     $this->doBooking($shipment);
@@ -451,6 +457,60 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
                 Mage::logException($exception);
             }
         }
+    }
+
+    /**
+     * Create Transsmart API documents for all shipments that need to be exported.
+     */
+    public function doMassExport()
+    {
+        /** @var Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection */
+        $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection');
+
+        // we need only valid Transsmart shipments without document ID
+        $shipmentCollection
+            ->addFieldToFilter('transsmart_carrierprofile_id', array('notnull' => true))
+            ->addFieldToFilter('transsmart_shipmentlocation_id', array('notnull' => true))
+            ->addFieldToFilter('transsmart_emailtype_id', array('notnull' => true))
+            ->addFieldToFilter('transsmart_incoterm_id', array('notnull' => true))
+            ->addFieldToFilter('transsmart_costcenter_id', array('notnull' => true))
+            ->addFieldToFilter('transsmart_packages', array('notnull' => true))
+            ->addFieldToFilter('transsmart_document_id', array('null' => true));
+
+        /** @var Mage_Sales_Model_Order_Shipment $_shipment */
+        foreach ($shipmentCollection as $_shipment) {
+            // set original data manually (because we didn't call object load())
+            $_shipment->setOrigData();
+
+            $this->doExport($_shipment, false);
+        }
+
+        // group documentIds for all book-and-print shipments with the same QZ Host and Selected Printer
+        $groupedCalls = $this->_getMassPrintGroupedCalls($shipmentCollection, true);
+        if (count($groupedCalls) == 0) {
+            return;
+        }
+
+        $idsToSync = array();
+        try {
+            // call Transsmart API doLabel method for each group (doBooking was already called in doExport)
+            foreach ($groupedCalls as $_call) {
+                $idsToSync += $_call['doc_ids'];
+                Mage::helper('transsmart_shipping')->getApiClient()->doLabel(
+                    $_call['doc_ids'],
+                    Mage::getStoreConfig(Transsmart_Shipping_Helper_Data::XML_PATH_CONNECTION_USERNAME, 0),
+                    false,
+                    false,
+                    $_call['qz_host'],
+                    $_call['selected_printer']
+                );
+            }
+        }
+        catch (Exception $exception) {
+            $this->_massSyncDocuments($shipmentCollection, $idsToSync);
+            throw $exception;
+        }
+        $this->_massSyncDocuments($shipmentCollection, $idsToSync);
     }
 
     /**
@@ -520,7 +580,7 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Call doLabel for a Transsmart shipment and return the label contents (PDF)
+     * Call doLabel for a Transsmart shipment.
      *
      * @param Mage_Sales_Model_Order_Shipment $shipment
      * @return bool
@@ -554,6 +614,160 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
             throw $exception;
         }
         Mage::getSingleton('transsmart_shipping/sync')->syncShipment($shipment);
+
+        return true;
+    }
+
+    /**
+     * Group documentIds for shipments with the same QZ Host and Selected Printer.
+     * Used by doMassBookAndPrint and doMassLabel
+     *
+     * @param Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection
+     * @param bool $onlyWithBookAndPrintFlag
+     * @return array
+     */
+    protected function _getMassPrintGroupedCalls($shipmentCollection, $onlyWithBookAndPrintFlag)
+    {
+        // group documentIds for shipments with the same QZ Host and Selected Printer.
+        $groupedCalls = array();
+        foreach ($shipmentCollection as $_shipment) {
+            if (!$_shipment->getTranssmartDocumentId()) {
+                continue;
+            }
+
+            // do we need only shipments with the FLAG_BOOKANDPRINT_ON_CREATE flag?
+            if ($onlyWithBookAndPrintFlag) {
+                $_flags = (int)$_shipment->getTranssmartFlags();
+                if (($_flags & Transsmart_Shipping_Helper_Shipment::FLAG_BOOKANDPRINT_ON_CREATE) == 0) {
+                    continue;
+                }
+            }
+
+            $_qzHost = Mage::getStoreConfig(
+                Transsmart_Shipping_Helper_Data::XML_PATH_PRINT_QZHOST,
+                $_shipment->getStore()
+            );
+            $_selectedPrinter = Mage::getStoreConfig(
+                Transsmart_Shipping_Helper_Data::XML_PATH_PRINT_SELECTEDPRINTER,
+                $_shipment->getStore()
+            );
+
+            $_groupKey = $_qzHost . ':' . $_selectedPrinter;
+            if (!isset($groupedCalls[$_groupKey])) {
+                $groupedCalls[$_groupKey] = array(
+                    'qz_host'          => $_qzHost,
+                    'selected_printer' => $_selectedPrinter,
+                    'doc_ids'          => array()
+                );
+            }
+
+            $groupedCalls[$_groupKey]['doc_ids'][] = $_shipment->getTranssmartDocumentId();
+        }
+
+        return $groupedCalls;
+    }
+
+    /**
+     * Synchronize status for the given shipments. If idsToSync array is given, only those document IDs will be synced.
+     * Used by doMassBookAndPrint and doMassLabel
+     *
+     * @param Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection
+     * @param array|null $idsToSync
+     */
+    protected function _massSyncDocuments($shipmentCollection, $idsToSync = null)
+    {
+        if (!is_null($idsToSync) && count($idsToSync) == 0) {
+            return;
+        }
+
+        foreach ($shipmentCollection as $_shipment) {
+            $_documentId = $_shipment->getTranssmartDocumentId();
+            if (!$_documentId || (!is_null($idsToSync) && !in_array($_documentId, $idsToSync))) {
+                continue;
+            }
+
+            try {
+                Mage::getSingleton('transsmart_shipping/sync')->syncShipment($_shipment);
+            }
+            catch (Mage_Core_Exception $exception) {
+                Mage::logException($exception);
+            }
+        }
+    }
+
+    /**
+     * Call doBookAndPrint for multiple Transsmart shipments at once.
+     *
+     * @param Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection
+     * @return bool
+     * @throws Exception
+     */
+    public function doMassBookAndPrint($shipmentCollection)
+    {
+        // group documentIds for shipments with the same QZ Host and Selected Printer.
+        $groupedCalls = $this->_getMassPrintGroupedCalls($shipmentCollection, false);
+        if (count($groupedCalls) == 0) {
+            return;
+        }
+
+        $idsToSync = array();
+        try {
+            // call Transsmart API doLabel method for each group
+            foreach ($groupedCalls as $_call) {
+                $idsToSync += $_call['doc_ids'];
+                Mage::helper('transsmart_shipping')->getApiClient()->doBookAndPrint(
+                    $_call['doc_ids'],
+                    Mage::getStoreConfig(Transsmart_Shipping_Helper_Data::XML_PATH_CONNECTION_USERNAME, 0),
+                    false,
+                    $_call['qz_host'],
+                    $_call['selected_printer']
+                );
+            }
+        }
+        catch (Exception $exception) {
+            $this->_massSyncDocuments($shipmentCollection, $idsToSync);
+            throw $exception;
+        }
+        $this->_massSyncDocuments($shipmentCollection, $idsToSync);
+
+        return true;
+    }
+
+    /**
+     * Call doLabel for multiple Transsmart shipments at once.
+     *
+     * @param Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection
+     * @return bool
+     * @throws Exception
+     */
+    public function doMassLabel($shipmentCollection)
+    {
+        // group documentIds for shipments with the same QZ Host and Selected Printer.
+        $groupedCalls = $this->_getMassPrintGroupedCalls($shipmentCollection, false);
+        if (count($groupedCalls) == 0) {
+            return;
+        }
+
+        $idsToSync = array();
+        try {
+            // call Transsmart API doLabel method for each group
+            foreach ($groupedCalls as $_call) {
+                $idsToSync += $_call['doc_ids'];
+                Mage::helper('transsmart_shipping')->getApiClient()->doLabel(
+                    $_call['doc_ids'],
+                    Mage::getStoreConfig(Transsmart_Shipping_Helper_Data::XML_PATH_CONNECTION_USERNAME, 0),
+                    false,
+                    false,
+                    $_call['qz_host'],
+                    $_call['selected_printer']
+                );
+            }
+        }
+        catch (Exception $exception) {
+            $this->_massSyncDocuments($shipmentCollection, $idsToSync);
+            throw $exception;
+        }
+        $this->_massSyncDocuments($shipmentCollection, $idsToSync);
 
         return true;
     }

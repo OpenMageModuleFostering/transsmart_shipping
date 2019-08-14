@@ -391,7 +391,7 @@ Transsmart.Shipping.Pickup = Class.create({
      * Needed for LightCheckout when the quote address is not updated via AJAX.
      */
     getCurrentAddress: function () {
-        var result = null;
+        var result = {};
 
         try {
             // determine address prefix
@@ -431,23 +431,11 @@ Transsmart.Shipping.Pickup = Class.create({
                 addressPrefix = 'billing:';
             }
 
-            var postcode = $(addressPrefix + 'postcode');
-            var city = $(addressPrefix + 'city');
-            var street = $(addressPrefix + 'street1');
-            var housenr = $(addressPrefix + 'street2');
-
-            if (postcode) {
-                result = postcode.value;
-                if (city) {
-                    result += ',' + city.value;
-                    if (street) {
-                        result += ',' + street.value;
-                        if (housenr) {
-                            result += ',' + housenr.value;
-                        }
-                    }
-                }
-            }
+            result.country = $(addressPrefix + 'country_id').value;
+            result.zipcode = $(addressPrefix + 'postcode').value;
+            result.city    = $(addressPrefix + 'city').value;
+            result.street  = $(addressPrefix + 'street1').value;
+            result.housenr = $(addressPrefix + 'street2').value;
         }
         catch (e) {
         }
@@ -463,17 +451,20 @@ Transsmart.Shipping.Pickup = Class.create({
     retrieveLocation: function(searchValue, callback, errorCallback) {
         // Attach the selected shipping method
         var url  = this.config.lookupUrl;
-        url += '?shipping_method=' + encodeURIComponent(this.selectedShippingMethod);
-
-        if (!searchValue) {
-            searchValue = this.getCurrentAddress();
-        }
+        var params = {
+            shipping_method: this.selectedShippingMethod,
+        };
 
         if (searchValue != null) {
-            url += '&search=' + encodeURIComponent(searchValue);
+            params.search = searchValue;
+        }
+        else {
+            params = Object.extend(params, this.getCurrentAddress());
         }
 
         this.ajaxRequest = new Ajax.Request(url, {
+            parameters: params,
+            method: 'get',
             onComplete: function (response) {
                 try {
                     if (!response.responseJSON) {

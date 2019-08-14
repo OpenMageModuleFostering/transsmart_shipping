@@ -298,6 +298,10 @@ class Transsmart_Shipping_Model_Adminhtml_Observer
         
         // TODO: make a setting for this?
 
+        if ($shipment->getData('transsmart_prevent_export_on_save')) {
+            return;
+        }
+
         // export to Transsmart API
         Mage::helper('transsmart_shipping/shipment')->doExport($shipment);
     }

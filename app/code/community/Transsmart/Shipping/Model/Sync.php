@@ -513,37 +513,7 @@ class Transsmart_Shipping_Model_Sync extends Mage_Core_Model_Abstract
      */
     protected function exportShipments()
     {
-        /** @var Mage_Sales_Model_Resource_Order_Shipment_Collection $shipmentCollection */
-        $shipmentCollection = Mage::getResourceModel('sales/order_shipment_collection');
-
-        // join the shipping_method column from the order table
-        $shipmentCollection->join(
-            array('order' => 'sales/order'),
-            'order.entity_id = main_table.order_id',
-            ''
-        );
-
-        // we need only valid Transsmart shipments without document ID
-        $shipmentCollection
-            ->addFieldToFilter('shipping_method', array('like' => 'transsmart%\_carrierprofile\_%'))
-            ->addFieldToFilter('transsmart_shipmentlocation_id', array('notnull' => true))
-            ->addFieldToFilter('transsmart_emailtype_id', array('notnull' => true))
-            ->addFieldToFilter('transsmart_incoterm_id', array('notnull' => true))
-            ->addFieldToFilter('transsmart_costcenter_id', array('notnull' => true))
-            ->addFieldToFilter('transsmart_packages', array('notnull' => true))
-            ->addFieldToFilter('transsmart_document_id', array('null' => true));
-
-        /** @var Transsmart_Shipping_Helper_Shipment $shipmentHelper */
-        $shipmentHelper = Mage::helper('transsmart_shipping/shipment');
-
-        /** @var Mage_Sales_Model_Order_Shipment $_shipment */
-        foreach ($shipmentCollection as $_shipment) {
-            // set original data manually (because we didn't call object load())
-            $_shipment->setOrigData();
-
-            $shipmentHelper->doExport($_shipment);
-        }
-
+        Mage::helper('transsmart_shipping/shipment')->doMassExport();
         return $this;
     }
 

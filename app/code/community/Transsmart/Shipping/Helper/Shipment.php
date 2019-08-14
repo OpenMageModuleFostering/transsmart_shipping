@@ -318,17 +318,24 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
         list($invoiceAddressStreet, $invoiceAddressStreetNo, $invoiceAddressStreet2) =
             $this->_getStreetFields($invoiceAddress, $store);
 
+        /** @var Mage_Core_Helper_String $stringHelper */
+        $stringHelper = Mage::helper('core/string');
+
         // calculate shipment value and prepare delivery note lines
         $shipmentValue = 0.0;
         $deliveryNoteInfoLines = array();
         /** @var Mage_Sales_Model_Order_Shipment_Item $_item */
         foreach ($shipment->getAllItems() as $_item) {
+            if ($_item->getOrderItem()->getParentItem()) {
+                continue;
+            }
+
             $shipmentValue += $_item->getPrice() * $_item->getQty();
 
             $_line = array(
                 'ArticleId'         => $_item->getSku(),
-                'ArticleName'       => $_item->getName(),
-                'Description'       => $_item->getDescription(),
+                'ArticleName'       => $stringHelper->substr($_item->getName(), 0, 45),
+                'Description'       => $stringHelper->substr($_item->getDescription(), 0, 510),
                 'Price'             => $_item->getPrice(),
                 'Currency'          => $store->getCurrentCurrencyCode(),
                 'Quantity'          => $_item->getQty(),
@@ -371,9 +378,9 @@ class Transsmart_Shipping_Helper_Shipment extends Mage_Core_Helper_Abstract
         $document = array(
             'Reference'                 => $shipment->getIncrementId(),
             'CarrierProfileId'          => $carrierprofile->getId(),
-            'CarrierId'                 => $carrierprofile->getCarrierId(),
-            'ServiceLevelTimeId'        => $carrierprofile->getServicelevelTimeId(),
-            'ServiceLevelOtherId'       => $carrierprofile->getServicelevelOtherId(),
+            //'CarrierId'                 => $carrierprofile->getCarrierId(),
+            //'ServiceLevelTimeId'        => $carrierprofile->getServicelevelTimeId(),
+            //'ServiceLevelOtherId'       => $carrierprofile->getServicelevelOtherId(),
             'ShipmentLocationId'        => $shipment->getTranssmartShipmentlocationId(),
             'MailTypeId'                => $shipment->getTranssmartEmailtypeId(),
             'IncotermId'                => $shipment->getTranssmartIncotermId(),

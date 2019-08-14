@@ -1,0 +1,91 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Create_Detail $this */ ?>
+<table cellspacing="0" class="form-list transsmart-shipment-detail">
+    <tbody>
+        <tr>
+            <td class="label"><label for="tss_carrierprofile"><?php echo $this->__('Carrier Profile'); ?> <span class="required">*</span></label></td>
+            <td class="value" colspan="3">
+                <?php if ($this->getAllowChangeCarrierprofile()): ?>
+                    <select id="tss_carrierprofile" name="shipment[transsmart_carrierprofile_id]" class="required-entry select">
+                        <?php foreach ($this->getAvailableCarrierprofiles() as $_key => $_label): ?>
+                            <option value="<?php echo $_key; ?>"<?php if ($_key == $this->getDefaultCarrierprofileId()): ?> selected="selected"<?php endif; ?>>
+                                <?php echo $this->escapeHtml($_label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php else: ?>
+                    <strong><?php echo $this->escapeHtml($this->getDefaultCarrierprofile()); ?></strong>
+                <?php endif; ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="label"><label for="tss_shipmentlocation"><?php echo $this->__('Shipment Location'); ?> <span class="required">*</span></label></td>
+            <td class="value">
+                <select id="tss_shipmentlocation" name="shipment[transsmart_shipmentlocation_id]" class="required-entry select">
+                    <?php foreach ($this->getShipmentlocations() as $_key => $_label): ?>
+                        <option value="<?php echo $_key; ?>"<?php if ($_key == $this->getDefaultShipmentlocationId()): ?> selected="selected"<?php endif; ?>>
+                            <?php echo $this->escapeHtml($_label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td class="label"><label for="tss_emailtype"><?php echo $this->__('Email Type'); ?> <span class="required">*</span></label></td>
+            <td class="value">
+                <select id="tss_emailtype" name="shipment[transsmart_emailtype_id]" class="required-entry select">
+                    <?php foreach ($this->getEmailtypes() as $_key => $_label): ?>
+                        <option value="<?php echo $_key; ?>"<?php if ($_key == $this->getDefaultEmailtypeId()): ?> selected="selected"<?php endif; ?>>
+                            <?php echo $this->escapeHtml($_label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="label"><label for="tss_costcenter"><?php echo $this->__('Cost Center'); ?> <span class="required">*</span></label></td>
+            <td class="value">
+                <select id="tss_costcenter" name="shipment[transsmart_costcenter_id]" class="required-entry select">
+                    <?php foreach ($this->getCostcenters() as $_key => $_label): ?>
+                        <option value="<?php echo $_key; ?>"<?php if ($_key == $this->getDefaultCostcenterId()): ?> selected="selected"<?php endif; ?>>
+                            <?php echo $this->escapeHtml($_label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+            <td class="label"><label for="tss_incoterm"><?php echo $this->__('Incoterm'); ?> <span class="required">*</span></label></td>
+            <td class="value">
+                <select id="tss_incoterm" name="shipment[transsmart_incoterm]" class="required-entry select">
+                    <?php foreach ($this->getIncoterms() as $_key => $_label): ?>
+                        <option value="<?php echo $_key; ?>"<?php if ($_key == $this->getDefaultIncotermId()): ?> selected="selected"<?php endif; ?>>
+                            <?php echo $this->escapeHtml($_label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+(function () {
+    var origCarrierprofileId = $('tss_carrierprofile').value, confirmed = false;
+    $('tss_carrierprofile').observe('change', function () {
+        if (this.value != origCarrierprofileId && !confirmed) {
+            if (confirm('<?php echo $this->jsQuoteEscape($this->__('Please note! The carrier profile will be changed. This change will NOT be made to the Magento order. This could affect the calculated shipping costs and tracking and tracing emails. Do you want to continue?')); ?>')) {
+                confirmed = true;
+            }
+            else {
+                this.value = origCarrierprofileId;
+            }
+        }
+    });
+})();
+//]]>
+</script>
+
+<?php echo $this->getChildHtml('package'); ?>

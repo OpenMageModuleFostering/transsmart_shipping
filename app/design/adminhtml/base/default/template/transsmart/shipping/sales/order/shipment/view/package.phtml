@@ -1,0 +1,42 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_View_Package $this */ ?>
+<div class="grid">
+    <table cellspacing="0" class="data" id="tss_package_table">
+        <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+        </colgroup>
+        <thead>
+            <tr class="headings">
+                <th><?php echo $this->__('Package Type') ?></th>
+                <th><?php echo Mage::helper('sales')->__('Qty') ?></th>
+                <th><?php echo $this->__('Length (cm)') ?></th>
+                <th><?php echo $this->__('Width (cm)') ?></th>
+                <th><?php echo $this->__('Height (cm)') ?></th>
+                <th class="last"><?php echo $this->__('Weight (Kg)') ?></th>
+            </tr>
+        </thead>
+        <tbody id="tss_package_row_container">
+            <?php foreach ($this->getFormattedPackageLines() as $_index => $_line): ?>
+            <tr class="border <?php echo ($_index % 2) ? 'odd' : 'even'; ?>">
+                <td><strong><?php echo $this->escapeHtml($_line['package_type']); ?></strong></td>
+                <td><?php echo $this->escapeHtml($_line['qty']); ?></td>
+                <td><?php echo $this->escapeHtml($_line['length']); ?></td>
+                <td><?php echo $this->escapeHtml($_line['width']); ?></td>
+                <td><?php echo $this->escapeHtml($_line['height']); ?></td>
+                <td class="last"><?php echo $this->escapeHtml($_line['weight']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

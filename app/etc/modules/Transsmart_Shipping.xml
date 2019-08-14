@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<config>
+    <modules>
+        <Transsmart_Shipping>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Transsmart_Shipping>
+    </modules>
+</config>

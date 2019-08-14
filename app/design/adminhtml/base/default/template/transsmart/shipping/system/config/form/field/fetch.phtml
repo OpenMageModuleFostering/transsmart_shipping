@@ -1,0 +1,101 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_System_Config_Form_Field_Fetch $this */ ?>
+<?php if ($this->useContainer()): ?>
+    <tr id="row_<?php echo $this->getHtmlId() ?>">
+        <td colspan="2">
+            <div class="comment" id="<?php echo $this->getHtmlId() ?>">
+<?php endif; ?>
+                <ul class="messages">
+                    <li class="<?php echo $this->getMessageClass() ?>">
+                        <ul>
+                            <li>
+                                <?php if ($this->showFetchButton()): ?>
+                                    <div style="float:right"><?php echo $this->getFetchButtonHtml() ?></div>
+                                <?php endif; ?>
+                                <span><?php echo nl2br($this->escapeHtml($this->getMessageText())) ?></span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+<?php if ($this->useContainer()): ?>
+            </div>
+        </td>
+    </tr>
+    <script type="text/javascript">
+        //<![CDATA[
+        /**
+         * Disable the 'Fetch Now' button when connection settings are changed (need to save first).
+         * @param string htmlId
+         */
+        function transsmart_enableFetch(htmlId) {
+            var table = $(htmlId).up('table');
+            var inputs = table.select('input, select');
+            var initialValues = inputs.collect(function (e) { return e.getValue(); });
+
+            var check = function () {
+                var button = $(htmlId + '_button');
+                if (!button) {
+                    return;
+                }
+
+                var newValues = inputs.collect(function (e) { return e.getValue(); });
+
+                // compare values
+                var diff = false;
+                for (var i = 0; i < initialValues.length; i++) {
+                    if (newValues[i] != initialValues[i]) {
+                        diff = true;
+                        break;
+                    }
+                }
+
+                // update 'Fetch Now' button state
+                if (diff) {
+                    button.addClassName('disabled');
+                    button.disabled = true;
+                }
+                else {
+                    button.removeClassName('disabled');
+                    button.disabled = false;
+                }
+            };
+
+            inputs.invoke('observe', 'change', check);
+            inputs.invoke('observe', 'keyup', check);
+            check();
+        }
+        Event.observe(document, 'dom:loaded', function () {
+            transsmart_enableFetch('<?php echo $this->getHtmlId() ?>');
+        });
+
+        function transsmart_fetchBaseData(htmlId) {
+            // disable the 'Fetch Now' button during the ajax request
+            var button = $(htmlId + '_button');
+            var result = $(htmlId);
+            button.disabled = true;
+            button.addClassName('disabled');
+
+            new Ajax.Request('<?php echo $this->jsQuoteEscape($this->getFetchUrl()); ?>', {
+                method: 'get',
+                onSuccess: function (transport) {
+                    button.disabled = false;
+                    button.removeClassName('disabled');
+                    result.innerHTML = transport.responseText;
+                },
+                onFailure: function () {
+                    button.disabled = false;
+                    button.removeClassName('disabled');
+                    var message = '<?php echo $this->jsQuoteEscape($this->__('Unknown error')); ?>';
+                    alert(message);
+                }
+            });
+        }
+        //]]>
+    </script>
+<?php endif; ?>

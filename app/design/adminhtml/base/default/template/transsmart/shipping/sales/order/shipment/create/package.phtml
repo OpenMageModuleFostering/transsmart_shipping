@@ -1,0 +1,134 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Create_Package $this */ ?>
+<script type="text/javascript">
+//<![CDATA[
+var tssPackageControl = {
+    index: 0,
+    init: function (config) {
+        this.config = config;
+        Event.observe(document, 'dom:loaded', this.add.bind(this));
+    },
+    add: function () {
+        this.index++;
+        var data = {index:this.index};
+        Element.insert($('tss_package_row_container'), {bottom: this.template.evaluate(data)});
+        this.initPackageType();
+        this.updateRowCount();
+    },
+    deleteRow: function (event) {
+        var row = Event.findElement(event, 'tr');
+        if (row) {
+            row.parentNode.removeChild(row);
+            this.updateRowCount();
+        }
+    },
+    updateRowCount: function () {
+        $('tss_package_table_row_count').value = $('tss_package_table').select('.select').length - 1;
+    },
+    initPackageType: function () {
+        var elems = $('tss_package_table').select('.select');
+        elems.each(function (elem) {
+            if (!elem.tssInitialized) {
+                elem.tssInitialized = true;
+                for (var i = 0; i < this.config.types.length; i++) {
+                    var option = document.createElement('option');
+                    option.value = this.config.types[i].id;
+                    option.text = this.config.types[i].name;
+                    if (this.config.default == option.value) {
+                        option.selected = true;
+                    }
+                    elem.add(option);
+                }
+                elem.observe('change', this.packageTypeOnchange.bind(this));
+                this.fillDefaults(elem);
+            }
+        }.bind(this));
+    },
+    packageTypeOnchange: function (event) {
+        var elem = Event.element(event);
+        this.fillDefaults(elem);
+    },
+    fillDefaults: function (elem) {
+        var index = elem.id.substr('tss_packageT'.length);
+        var option = parseInt(elem.options[elem.selectedIndex].value, 10);
+
+        for (var i = 0; i < this.config.types.length; i++) {
+            if (this.config.types[i].id == option) {
+                $('tss_packageL' + index).disabled = (!option);
+                Element[(option ? 'remove' : 'add') + 'ClassName']('tss_packageL' + index, 'disabled');
+                $('tss_packageW' + index).disabled = (!option);
+                Element[(option ? 'remove' : 'add') + 'ClassName']('tss_packageW' + index, 'disabled');
+                $('tss_packageH' + index).disabled = (!option);
+                Element[(option ? 'remove' : 'add') + 'ClassName']('tss_packageH' + index, 'disabled');
+                $('tss_packageK' + index).disabled = (!option);
+                Element[(option ? 'remove' : 'add') + 'ClassName']('tss_packageK' + index, 'disabled');
+
+                $('tss_packageL' + index).value = option ? this.config.types[i].length : '';
+                $('tss_packageW' + index).value = option ? this.config.types[i].width  : '';
+                $('tss_packageH' + index).value = option ? this.config.types[i].height : '';
+                $('tss_packageK' + index).value = option ? this.config.types[i].weight : '';
+                break;
+            }
+        }
+    }
+};
+Validation.add('tss-validate-package-table-row-count', 'Please add at lease one package.', function (v) {
+    v = parseInt(v, 10);
+    return !isNaN(v) && v > 0;
+});
+//]]>
+</script>
+<div class="grid">
+    <table cellspacing="0" class="data" id="tss_package_table">
+        <colgroup>
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col width="80" />
+        </colgroup>
+        <thead>
+            <tr class="headings">
+                <th><?php echo $this->__('Package Type') ?></th>
+                <th><?php echo Mage::helper('sales')->__('Qty') ?> <span class="required">*</span></th>
+                <th><?php echo $this->__('Length (cm)') ?> <span class="required">*</span></th>
+                <th><?php echo $this->__('Width (cm)') ?> <span class="required">*</span></th>
+                <th><?php echo $this->__('Height (cm)') ?> <span class="required">*</span></th>
+                <th><?php echo $this->__('Weight (Kg)') ?> <span class="required">*</span></th>
+                <th class="last"><?php echo Mage::helper('sales')->__('Action') ?></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="a-center last" style="padding:8px;"><?php echo $this->getChildHtml('add_button') ?></td>
+            </tr>
+        </tfoot>
+        <tbody id="tss_package_row_container">
+            <tr id="tss_package_row_template" class="template no-display">
+                <td><select name="shipment[transsmart_package][__index__][package_type]" id="tss_packageT__index__" class="select" style="width:110px;"></select></td>
+                <td><input class="input-text required-entry validate-greater-than-zero validate-digits" type="text" name="shipment[transsmart_package][__index__][qty]" id="tss_packageQ__index__" value="1" /></td>
+                <td><input class="input-text required-entry validate-greater-than-zero" type="text" name="shipment[transsmart_package][__index__][length]" id="tss_packageL__index__" value="" /></td>
+                <td><input class="input-text required-entry validate-greater-than-zero" type="text" name="shipment[transsmart_package][__index__][width]" id="tss_packageW__index__" value="" /></td>
+                <td><input class="input-text required-entry validate-greater-than-zero" type="text" name="shipment[transsmart_package][__index__][height]" id="tss_packageH__index__" value="" /></td>
+                <td><input class="input-text required-entry validate-greater-than-zero" type="text" name="shipment[transsmart_package][__index__][weight]" id="tss_packageK__index__" value="" /></td>
+                <td class="last"><a href="#" onclick="tssPackageControl.deleteRow(event);return false"><?php echo Mage::helper('sales')->__('Delete') ?></a></td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="hidden" class="tss-validate-package-table-row-count" id="tss_package_table_row_count" value="0" />
+</div>
+<script type="text/javascript">
+//<![CDATA[
+Translator.add('Please add at lease one package.', '<?php echo $this->jsQuoteEscape($this->__('Please add at lease one package.')); ?>');
+tssPackageControl.template = new Template('<tr>' + $('tss_package_row_template').innerHTML.replace(/__index__/g, '#{index}') + '<\/tr>');
+tssPackageControl.init(<?php echo Mage::helper('core')->jsonEncode($this->getPackageConfig()); ?>);
+//]]>
+</script>

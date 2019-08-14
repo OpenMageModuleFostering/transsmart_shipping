@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<config>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <transsmart_shipping translate="title">
+                                        <title>Transsmart Shipping Settings</title>
+                                        <sort_order>315</sort_order>
+                                    </transsmart_shipping>
+                                    <transsmart_carrier_profiles translate="title">
+                                        <title>Transsmart Carrier Profiles</title>
+                                        <sort_order>316</sort_order>
+                                    </transsmart_carrier_profiles>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

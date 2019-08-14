@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<layout>
+    <adminhtml_sales_order_view>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>transsmart/shipping/styles.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="adminhtml/template" name="transsmart_shipping.pickup.address_container"
+                   template="transsmart/shipping/sales/order/address/form/container.phtml"/>
+        </reference>
+    </adminhtml_sales_order_view>
+
+    <adminhtml_sales_order_create_index>
+        <reference name="head">
+            <action method="addLinkRel">
+                <rel>stylesheet</rel>
+                <href>//fonts.googleapis.com/css?family=Dosis:500,600</href>
+            </action>
+            <action method="addJs">
+                <file>transsmart/shipping/base64.js</file>
+            </action>
+            <action method="addJs">
+                <file>transsmart/shipping/logger.js</file>
+            </action>
+            <action method="addJs">
+                <file>transsmart/shipping/pickup_selector.js</file>
+            </action>
+            <action method="addJs">
+                <file>transsmart/shipping/admin/pickup_selector.js</file>
+            </action>
+            <action method="addCss">
+                <stylesheet>transsmart/shipping/pickup_selector.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="adminhtml/template" name="transsmart_shipping.pickup.selector"
+                   template="transsmart/shipping/location/selector.phtml"/>
+        </reference>
+        <reference name="shipping_method">
+            <block type="transsmart_shipping/adminhtml_shipping_location_info"
+                   name="transsmart_shipping.pickup.location_info" />
+        </reference>
+    </adminhtml_sales_order_create_index>
+
+    <adminhtml_sales_order_create_load_block_data>
+        <reference name="shipping_method">
+            <block type="transsmart_shipping/adminhtml_shipping_location_info"
+                   name="transsmart_shipping.pickup.location_info" />
+        </reference>
+    </adminhtml_sales_order_create_load_block_data>
+
+    <adminhtml_sales_order_create_load_block_shipping_method>
+        <reference name="shipping_method">
+            <block type="transsmart_shipping/adminhtml_shipping_location_info"
+                   name="transsmart_shipping.pickup.location_info" />
+        </reference>
+    </adminhtml_sales_order_create_load_block_shipping_method>
+
+    <adminhtml_sales_order_shipment_new>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>transsmart/shipping/styles.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="adminhtml/template" name="transsmart_shipping.pickup.address_container"
+                   template="transsmart/shipping/sales/order/shipment/address/form/container.phtml"/>
+        </reference>
+    </adminhtml_sales_order_shipment_new>
+
+    <adminhtml_sales_order_shipment_view>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>transsmart/shipping/styles.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="adminhtml/template" name="transsmart_shipping.pickup.address_container"
+                   template="transsmart/shipping/sales/order/shipment/address/form/container.phtml"/>
+        </reference>
+    </adminhtml_sales_order_shipment_view>
+
+    <adminhtml_transsmart_shipping_shipment_masscreate>
+        <reference name="head">
+            <action method="addCss">
+                <stylesheet>transsmart/shipping/styles.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="transsmart_shipping/adminhtml_sales_order_shipment_masscreate" name="sales_shipment_create"/>
+        </reference>
+    </adminhtml_transsmart_shipping_shipment_masscreate>
+</layout>

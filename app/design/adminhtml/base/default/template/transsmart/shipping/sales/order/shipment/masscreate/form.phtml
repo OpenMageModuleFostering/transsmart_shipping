@@ -1,0 +1,235 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_Masscreate_Form $this */ ?>
+<form id="edit_form" method="post" action="<?php echo $this->getSaveUrl() ?>">
+    <?php echo $this->getBlockHtml('formkey')?>
+
+    <div>
+        <?php /** @var Mage_Sales_Model_Order $_order */ ?>
+        <?php foreach ($this->getOrderCollection() as $_order): ?>
+            <input type="hidden" name="order_qty[<?php echo $_order->getId(); ?>]" value="<?php echo $this->getQtyToShip($_order); ?>" />
+        <?php endforeach; ?>
+    </div>
+
+    <div class="box-left">
+        <div class="entry-edit">
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-transsmart-shipping-details"><?php echo $this->__('Transsmart Shipping Details'); ?></h4>
+            </div>
+            <fieldset>
+                <div>
+                    <table cellspacing="0" class="form-list transsmart-shipment-detail">
+                        <tbody>
+                            <tr>
+                                <td class="label"><label for="tss_carrierprofile"><?php echo $this->__('Carrier Profile'); ?> <span class="required">*</span></label></td>
+                                <td class="value" colspan="3">
+                                    <select id="tss_carrierprofile" name="shipment[transsmart_carrierprofile_id]" class="required-entry select">
+                                        <option value="0" selected="selected"><?php echo $this->escapeHtml($this->__('Determine Automatically')); ?></option>
+                                        <?php foreach ($this->getAvailableCarrierprofiles() as $_key => $_label): ?>
+                                            <option value="<?php echo $_key; ?>">
+                                                <?php echo $this->escapeHtml($_label); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select><br/>
+                                    <p class="note"><span><?php echo $this->__('This does not affect shipments using a pickup option.'); ?></span></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label"><label for="tss_shipment_location"><?php echo $this->__('Shipment Location'); ?> <span class="required">*</span></label></td>
+                                <td class="value">
+                                    <select id="tss_shipment_location" name="shipment[transsmart_shipmentlocation_id]" class="required-entry select">
+                                        <option value="0" selected="selected"><?php echo $this->escapeHtml($this->__('Use Configured Default')); ?></option>
+                                        <?php foreach ($this->getShipmentlocations() as $_value => $_label): ?>
+                                            <option value="<?php echo $_value; ?>"><?php echo $this->escapeHtml($_label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td class="label"><label for="tss_email_type"><?php echo $this->__('Email Type'); ?> <span class="required">*</span></label></td>
+                                <td class="value">
+                                    <select id="tss_email_type" name="shipment[transsmart_emailtype_id]" class="required-entry select">
+                                        <option value="0" selected="selected"><?php echo $this->escapeHtml($this->__('Use Configured Default')); ?></option>
+                                        <?php foreach ($this->getEmailtypes() as $_value => $_label): ?>
+                                            <option value="<?php echo $_value; ?>"><?php echo $this->escapeHtml($_label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label"><label for="tss_cost_center"><?php echo $this->__('Cost Center'); ?> <span class="required">*</span></label></td>
+                                <td class="value">
+                                    <select id="tss_cost_center" name="shipment[transsmart_costcenter_id]" class="required-entry select">
+                                        <option value="0" selected="selected"><?php echo $this->escapeHtml($this->__('Use Configured Default')); ?></option>
+                                        <?php foreach ($this->getCostcenters() as $_value => $_label): ?>
+                                            <option value="<?php echo $_value; ?>"><?php echo $this->escapeHtml($_label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td class="label"><label for="tss_incoterm"><?php echo $this->__('Incoterm'); ?> <span class="required">*</span></label></td>
+                                <td class="value">
+                                    <select id="tss_incoterm" name="shipment[transsmart_incoterm]" class="required-entry select">
+                                        <option value="0" selected="selected"><?php echo $this->escapeHtml($this->__('Use Configured Default')); ?></option>
+                                        <?php foreach ($this->getIncoterms() as $_value => $_label): ?>
+                                            <option value="<?php echo $_value; ?>"><?php echo $this->escapeHtml($_label); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script type="text/javascript">
+                    //<![CDATA[
+                    (function () {
+                        var origCarrierprofileId = $('tss_carrierprofile').value, confirmed = false;
+                        $('tss_carrierprofile').observe('change', function () {
+                            if (this.value != origCarrierprofileId && !confirmed) {
+                                if (confirm('<?php echo $this->jsQuoteEscape($this->__('Please note! The carrier profile will be changed. This change will NOT be made to the Magento order. This could affect the calculated shipping costs and tracking and tracing emails. Do you want to continue?')); ?>')) {
+                                    confirmed = true;
+                                }
+                                else {
+                                    this.value = origCarrierprofileId;
+                                }
+                            }
+                        });
+                    })();
+                    //]]>
+                    </script>
+
+                    <?php echo $this->getChildHtml('package'); ?>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="box-right">
+        <div class="entry-edit">
+            <div class="entry-edit-head">
+                <h4 class="icon-head head-orders-summary"><?php echo $this->__('Summary') ?></h4>
+            </div>
+            <fieldset>
+                <table cellspacing="0" class="form-list">
+                    <tbody>
+                        <tr>
+                            <td class="label"><?php echo $this->__('Selected Orders'); ?></td>
+                            <td class="value"><strong><?php echo $this->getTotalOrderCount(); ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label"><?php echo $this->__('Shipments To Create'); ?></td>
+                            <td class="value"><strong><?php echo $this->getTotalShipmentsToCreate(); ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label"><?php echo $this->__('Qty to Ship'); ?></td>
+                            <td class="value"><strong><?php echo $this->getTotalQtyToShip(); ?></strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+    <div class="clear"></div>
+
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-orders"><?php echo $this->__('Shipments To Create') ?></h4>
+        </div>
+    </div>
+    <div class="grid np">
+        <div class="hor-scroll">
+            <table cellspacing="0" class="data order-tables">
+                <colgroup>
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                    <col />
+                </colgroup>
+                <thead>
+                    <tr class="headings">
+                        <th><?php echo Mage::helper('sales')->__('Order #'); ?></th>
+                        <th><?php echo Mage::helper('sales')->__('Order Date'); ?></th>
+                        <th><?php echo Mage::helper('sales')->__('Ship to Name'); ?></th>
+                        <th><?php echo Mage::helper('sales')->__('Shipping Method'); ?></th>
+                        <th class="a-right"><?php echo Mage::helper('sales')->__('Quantity Ordered'); ?></th>
+                        <th class="a-right last"><?php echo Mage::helper('sales')->__('Qty to Ship'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php /** @var Mage_Sales_Model_Order $_order */ ?>
+                    <?php $i = 0; foreach ($this->getOrderCollection() as $_order): ?>
+                        <tr class="border <?php echo ($i % 2) ? 'odd' : 'even'; ?>">
+                            <td><?php echo $_order->getIncrementId(); ?></td>
+                            <td><?php echo $_order->getCreatedAtFormated(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT); ?></td>
+                            <td><?php echo $this->escapeHtml($_order->getShippingAddress()->getName()); ?></td>
+                            <td><?php echo $this->escapeHtml($_order->getShippingDescription()); ?></td>
+                            <td class="a-right"><?php echo 1*$_order->getTotalQtyOrdered(); ?></td>
+                            <td class="a-right last"><?php echo $this->getQtyToShip($_order); ?></td>
+                        </tr>
+                    <?php $i++; endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br />
+
+    <div class="box-left entry-edit">
+        <div class="entry-edit-head"><h4><?php echo Mage::helper('sales')->__('Shipment Comments') ?></h4></div>
+        <fieldset>
+            <div id="order-history_form">
+                <span class="field-row">
+                    <label class="normal" for="shipment_comment_text"><?php echo Mage::helper('sales')->__('Shipment Comments') ?></label>
+                    <textarea id="shipment_comment_text" name="shipment[comment_text]" rows="3" cols="5" style="height:6em; width:99%;"></textarea>
+                </span>
+                <div class="clear"></div>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="box-right entry-edit">
+        <div class="order-totals">
+            <div class="order-totals-bottom">
+                <p>
+                    <label class="normal" for="notify_customer"><?php echo Mage::helper('sales')->__('Append Comments') ?></label>
+                    <input id="notify_customer" name="shipment[comment_customer_notify]" value="1" type="checkbox" />
+                </p>
+                <p>
+                    <label class="normal" for="send_email"><?php echo Mage::helper('sales')->__('Email Copy of Shipment') ?></label>
+                    <input id="send_email" name="shipment[send_email]" value="1" type="checkbox" />
+                </p>
+                <div class="a-right">
+                    <?php echo $this->getChildHtml('action') ?>
+                    <?php echo $this->getChildHtml('submit_button') ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+</form>
+<script type="text/javascript">
+//<![CDATA[
+editForm = new varienForm('edit_form');
+var sendEmailCheckbox = $('send_email');
+if (sendEmailCheckbox) {
+    var notifyCustomerCheckbox = $('notify_customer');
+    var shipmentCommentText = $('shipment_comment_text');
+    Event.observe(sendEmailCheckbox, 'change', bindSendEmail);
+    bindSendEmail();
+}
+function bindSendEmail() {
+    if (sendEmailCheckbox.checked == true) {
+        notifyCustomerCheckbox.disabled = false;
+    }
+    else {
+        notifyCustomerCheckbox.disabled = true;
+    }
+}
+function submitShipment(btn) {
+    if (editForm.submit()) {
+        disableElements('submit-button');
+    }
+}
+//]]>
+</script>

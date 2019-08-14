@@ -1,0 +1,30 @@
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+
+.three-column { width:32%; }
+.box-middle  { float:left; margin-left:2%; }
+
+.transsmart-shipment-detail.form-list {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.transsmart-shipment-detail.form-list td.label {
+    width: auto;
+}
+
+.transsmart-shipment-detail.form-list td.label:first-child {
+    padding-left: 0 !important;
+}
+
+.transsmart-shipment-detail.form-list td.label label {
+    white-space: nowrap;
+    width: auto;
+}
+
+.transsmart-shipment-detail.form-list td.value select {
+    width: 100%;
+}

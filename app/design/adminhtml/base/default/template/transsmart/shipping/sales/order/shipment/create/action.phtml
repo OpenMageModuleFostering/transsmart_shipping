@@ -1,0 +1,26 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Mage_Adminhtml_Block_Template $this */ ?>
+<p>
+    <label class="normal" for="transsmart_book"><?php echo $this->jsQuoteEscape(Mage::helper('transsmart_shipping')->__('Transsmart: Book Shipment(s)')); ?></label>
+    <input id="transsmart_book" name="shipment[transsmart_book]" value="1" type="checkbox" />
+</p>
+<p>
+    <label class="normal" for="transsmart_bookandprint"><?php echo $this->jsQuoteEscape(Mage::helper('transsmart_shipping')->__('Transsmart: Book & Print')); ?></label>
+    <input id="transsmart_bookandprint" name="shipment[transsmart_bookandprint]" value="1" type="checkbox" onclick="toggleTranssmartBookAndPrintCheckbox();" />
+</p>
+<script type="text/javascript">
+//<![CDATA[
+function toggleTranssmartBookAndPrintCheckbox() {
+    $('transsmart_book').disabled = $('transsmart_bookandprint').checked;
+    if ($('transsmart_bookandprint').checked) {
+        $('transsmart_book').checked = true;
+    }
+}
+//]]>
+</script>

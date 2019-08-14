@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<layout>
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addLinkRel"><rel>stylesheet</rel><href>//fonts.googleapis.com/css?family=Dosis:500,600</href></action>
+            <action method="addJs">
+                <script>transsmart/shipping/base64.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/logger.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/pickup_selector.js</script>
+            </action>
+            <action method="addCss">
+                <style>transsmart/shipping/pickup_selector.css</style>
+            </action>
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="transsmart_shipping/location_selector"
+                   template="transsmart/shipping/location/selector.phtml"
+                   name="transsmart_shipping.location.selector" />
+        </reference>
+    </checkout_onepage_index>
+
+    <checkout_onepage_progress_shipping_method>
+        <block type="checkout/onepage_progress" name="transsmart_shipping.location.selector.progress"
+               output="toHtml"
+               template="transsmart/shipping/onepage/progress/pickup.phtml">
+
+            <action method="setInfoTemplate"><method></method><template></template></action>
+        </block>
+    </checkout_onepage_progress_shipping_method>
+
+    <onestepcheckout_index_index>
+        <reference name="head">
+            <action method="addLinkRel"><rel>stylesheet</rel><href>//fonts.googleapis.com/css?family=Dosis:500,600</href></action>
+            <action method="addJs">
+                <script>transsmart/shipping/base64.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/logger.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/pickup_selector.js</script>
+            </action>
+            <action method="addCss">
+                <style>transsmart/shipping/pickup_selector.css</style>
+            </action>
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="transsmart_shipping/location_selector"
+                   template="transsmart/shipping/location/selector.phtml"
+                   name="transsmart_shipping.location.selector" />
+        </reference>
+    </onestepcheckout_index_index>
+
+    <gomage_checkout_onepage_index>
+        <reference name="head">
+            <action method="addLinkRel"><rel>stylesheet</rel><href>//fonts.googleapis.com/css?family=Dosis:500,600</href></action>
+            <action method="addJs">
+                <script>transsmart/shipping/base64.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/logger.js</script>
+            </action>
+            <action method="addJs">
+                <script>transsmart/shipping/pickup_selector.js</script>
+            </action>
+            <action method="addCss">
+                <style>transsmart/shipping/pickup_selector.css</style>
+            </action>
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="transsmart_shipping/location_selector"
+                   template="transsmart/shipping/location/selector.phtml"
+                   name="transsmart_shipping.location.selector" />
+        </reference>
+    </gomage_checkout_onepage_index>
+</layout>

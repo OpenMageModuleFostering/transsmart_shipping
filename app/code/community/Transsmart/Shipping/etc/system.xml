@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<config>
+    <sections>
+        <transsmart_shipping translate="label">
+            <label>Transsmart Shipping</label>
+            <tab>sales</tab>
+            <sort_order>325</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <versioninfo>
+                    <frontend_model>transsmart_shipping/adminhtml_system_config_form_fieldset_versioninfo</frontend_model>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </versioninfo>
+                <connection translate="label">
+                    <label>Connection Details</label>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <username translate="label">
+                            <label>Username</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-email</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </username>
+                        <password translate="label">
+                            <label>Password</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </password>
+                        <environment translate="label">
+                            <label>Environment</label>
+                            <sort_order>30</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_environment</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </environment>
+                        <fetch translate="label">
+                            <sort_order>40</sort_order>
+                            <frontend_model>transsmart_shipping/adminhtml_system_config_form_field_fetch</frontend_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </fetch>
+                    </fields>
+                </connection>
+                <print>
+                    <label>Printing</label>
+                    <sort_order>30</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <qzhost translate="label">
+                            <label>QZ Host</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </qzhost>
+                        <selectedprinter translate="label">
+                            <label>Selected Printer</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </selectedprinter>
+                    </fields>
+                </print>
+                <default_shipment translate="label">
+                    <label>Default Shipment Properties</label>
+                    <comment>These properties are applied to a new shipment by default, and can be configured per storeview.</comment>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <carrierprofile translate="label">
+                            <label>Carrier Profile</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_carrierprofile</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </carrierprofile>
+                        <shipmentlocation translate="label">
+                            <label>Shipment Location</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_shipmentlocation</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </shipmentlocation>
+                        <emailtype translate="label">
+                            <label>Email Type</label>
+                            <sort_order>30</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_emailtype</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </emailtype>
+                        <incoterm translate="label">
+                            <label>Incoterm</label>
+                            <sort_order>40</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_incoterm</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </incoterm>
+                        <costcenter translate="label">
+                            <label>Cost Center</label>
+                            <sort_order>50</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_costcenter</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </costcenter>
+                        <packagetype translate="label">
+                            <label>Package Type</label>
+                            <sort_order>60</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_basedata_packagetype</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </packagetype>
+                    </fields>
+                </default_shipment>
+                <mapping>
+                    <label>Mapping</label>
+                    <comment>If the shop uses multiple street fields, please specify which field should be used for what.</comment>
+                    <sort_order>50</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <expanded>1</expanded>
+                    <fields>
+                        <street translate="label">
+                            <label>Street</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_street</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </street>
+                        <streetno translate="label">
+                            <label>House Number</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_street</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </streetno>
+                        <street2 translate="label">
+                            <label>Street 2</label>
+                            <sort_order>30</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_street</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </street2>
+                        <country_of_origin translate="label">
+                            <label>Country of Origin</label>
+                            <sort_order>40</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </country_of_origin>
+                        <hs_code translate="label">
+                            <label>HS Code</label>
+                            <sort_order>50</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </hs_code>
+                        <reason_of_export translate="label">
+                            <label>Reason of Export</label>
+                            <sort_order>60</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_mapping_attribute</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </reason_of_export>
+                    </fields>
+                </mapping>
+            </groups>
+        </transsmart_shipping>
+        <transsmart_carrier_profiles>
+            <label>Transsmart Carrier Profiles</label>
+            <tab>sales</tab>
+            <sort_order>326</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <versioninfo>
+                    <frontend_model>transsmart_shipping/adminhtml_system_config_form_fieldset_versioninfo</frontend_model>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </versioninfo>
+                <header>
+                    <frontend_model>transsmart_shipping/adminhtml_system_config_form_fieldset_carrierprofile_header</frontend_model>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </header>
+                <template>
+                    <frontend_model>transsmart_shipping/adminhtml_system_config_form_fieldset_carrierprofile</frontend_model>
+                    <sort_order>30</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <method translate="label">
+                            <label>Show in Checkout</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>transsmart_shipping/adminhtml_system_config_source_method</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </method>
+                        <title translate="label">
+                            <label>Title</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <price translate="label" module="shipping">
+                            <label>Price</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-number validate-zero-or-greater</validate>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </price>
+                        <sallowspecific translate="label" module="shipping">
+                            <label>Ship to Applicable Countries</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>60</sort_order>
+                            <source_model>adminhtml/system_config_source_shipping_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sallowspecific>
+                        <specificcountry translate="label" module="shipping">
+                            <label>Ship to Specific Countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>61</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <sallowspecific>1</sallowspecific>
+                            </depends>
+                        </specificcountry>
+                        <location_select translate="label">
+                            <label>Use Location Selector</label>
+                            <sort_order>70</sort_order>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <method>transsmartpickup</method>
+                            </depends>
+                        </location_select>
+                    </fields>
+                </template>
+            </groups>
+        </transsmart_carrier_profiles>
+    </sections>
+</config>

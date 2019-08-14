@@ -1,0 +1,18 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Shipping_Location_Info $this */ ?>
+<div id="tss-ls-admin-selected-location">
+    <?php if ($_pickupAddress = $this->getPickupAddress()): ?>
+        <p style="margin: 10px 0 0">
+            <strong><?php echo $this->escapeHtml($_pickupAddress->getCompany()); ?></strong><br />
+            <?php echo $this->escapeHtml($_pickupAddress->getStreetFull()); ?><br />
+            <?php echo $this->escapeHtml($_pickupAddress->getPostcode()); ?> <?php echo $this->escapeHtml($_pickupAddress->getCity()); ?><br />
+            <?php echo $this->escapeHtml($_pickupAddress->getTelephone()); ?>
+        </p>
+    <?php endif; ?>
+</div>

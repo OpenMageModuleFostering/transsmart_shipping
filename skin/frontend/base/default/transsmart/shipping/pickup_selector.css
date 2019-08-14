@@ -1,0 +1,342 @@
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+
+#tss-pickup-container {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+#tss-pickup-container input, #tss-pickup-container button {
+    margin: 0;
+    line-height: normal;
+}
+
+#tss-pickup-container button {
+    -webkit-appearance: button;
+    cursor: pointer;
+}
+
+#tss-ls-close{
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border: none;
+    text-indent: -999px;
+    background: url('images/close-btn.png') no-repeat center center #0094D4;
+    overflow: hidden;
+}
+
+#tss-ls-close:hover{
+    background-color: #0079ae;
+}
+
+.tss-selector {
+    background: #fff;
+    left: 50%;
+    text-align: left;
+    margin-top: 20px;
+    margin-left: -377px;
+    position: fixed;
+    width: 754px;
+    z-index: 1;
+}
+
+.tss-selector-inner {
+    padding: 0;
+}
+
+#tss-pickup-container .tss-background-overlay {
+    background-color: #636363;
+    height: 100%;
+    left: 0;
+    opacity: 0.6;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.tss-selector-container .tss-ls-header {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    float: left;
+    padding: 20px;
+    width: 100%;
+}
+
+.tss-selector-container .tss-ls-header #tss-ls-search{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    background: #EFEFEF;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border: none;
+    color: black;
+    height: 36px;
+    padding: 0 10px;
+    width: 145px;
+}
+
+.tss-selector-container .tss-ls-header #tss-ls-search-btn {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 36px;
+    padding: 7px 20px;
+}
+
+.tss-selector-container .tss-ls-header .tss-ls-options{
+    float: right;
+    max-width: 274px;
+}
+.tss-selector-container .tss-ls-header .tss-ls-options .tss-ls-checkbox-wrapper{
+    float: left;
+    margin-left: 10px;
+}
+.tss-selector-container .tss-ls-header .tss-ls-options .tss-ls-checkbox-wrapper label{
+    display: inline;
+    font-size: 11px;
+    vertical-align: text-top;
+}
+.tss-selector-container .tss-ls-header .tss-ls-options .tss-ls-checkbox-wrapper input,
+.tss-selector-container .tss-ls-header .tss-ls-options .tss-ls-checkbox-wrapper label {
+    cursor: pointer;
+}
+
+.tss-selector-container .tss-ls-header .tss-ls-search-wrapper{
+    float: left;
+}
+
+.tss-ls-footer-controls button#tss-ls-select,
+.tss-selector-container .tss-ls-header .tss-ls-search-wrapper button{
+    background: #0094D4;
+    border: none;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    color: white;
+    font-family: 'Dosis', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 7px 15px;
+    text-transform: uppercase;
+}
+
+.tss-ls-footer-controls button#tss-ls-select:hover,
+.tss-selector-container .tss-ls-header .tss-ls-search-wrapper button:hover{
+    background-color: #0079ae;
+}
+
+.tss-ls-footer-controls button#tss-ls-select.disabled,
+.tss-selector-container .tss-ls-header .tss-ls-search-wrapper button.disabled{
+    background-color: #999;
+    color: #CCC;
+}
+
+.tss-ls-footer-controls button#tss-ls-select{
+    background: url('images/arrow.png') no-repeat 87% center #0094D4;
+    padding-right: 30px;
+}
+
+
+.tss-selector-container .tss-ls-header .tss-ls-header-title {
+    color: #202020;
+    display: block;
+    font-family: 'Dosis', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.tss-selector-container .tss-ls-header .tss-ls-header-controls {
+    margin-top: 5px;
+}
+
+.tss-selector-container .tss-ls-content{
+    clear: both;
+}
+
+.tss-ls-map-container #tss-ls-map {
+    float: left;
+    height: 460px;
+    width: 454px;
+}
+
+.tss-ls-map-container #tss-ls-map h1{
+    font-family: 'Dosis', sans-serif;
+    font-size: 15px;
+    max-width: 150px;
+}
+
+.tss-ls-map-container #tss-ls-map table td {
+    font-size: 11px;
+}
+
+#tss-ls-locations {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 300px;
+    height: 392px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.tss-ls-location-wrapper{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    float: left;
+}
+
+.tss-ls-location-wrapper h3{
+    background: #EBF0F3;
+    color: #0094D4;
+    display: block;
+    font-family: 'Dosis', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 15px;
+    text-transform: uppercase;
+}
+
+.tss-ls-footer-controls {
+    background: white;
+    clear: both;
+    margin-top: 10px;
+    padding: 10px 20px;
+    text-align: right;
+}
+
+
+.tss-ls-location-item {
+    border-bottom: 1px solid #E2E2E2;
+    display: table;
+    padding: 10px 0;
+    width: 100%;
+    cursor: pointer;
+}
+
+.tss-ls-location-item .tss-ls-check{
+    display: table-cell;
+    line-height: 16px;
+    vertical-align: middle;
+    width: 25px;
+}
+
+.tss-ls-location-item .tss-ls-check .tss-ls-img{
+    background: url('images/radio.png') no-repeat center top;
+    display: block;
+    height: 15px;
+    width: 100%;
+}
+
+.tss-ls-location-item.selected .tss-ls-check .tss-ls-img{
+    background: url('images/radio.png') no-repeat center bottom;
+}
+
+.tss-ls-location-item.selected {
+    color: #0093d0;
+}
+
+.tss-ls-location-item .tss-ls-name{
+    display: table-cell;
+    min-width: 140px;
+    padding-right: 5px;
+}
+
+.tss-ls-location-item .tss-ls-distance{
+    display: table-cell;
+    font-size: 11px;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    vertical-align: middle;
+}
+
+.tss-ls-location-item .tss-ls-name .tss-ls-company-name{
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+    padding-bottom: 3px;
+}
+.tss-ls-location-item .tss-ls-name .tss-ls-address{
+    float: left;
+    font-size: 11px;
+    line-height: 10px;
+}
+
+.tss-loader {
+    padding-bottom: 20px;
+    text-align: center;
+}
+
+.tss-loader img{
+    display: inline-block;
+    margin: 80px 0;
+}
+
+#tss-ls-selected-location-info {
+    margin-top: 10px;
+}
+
+@media (max-width: 770px) {
+    .tss-selector {
+        width: 300px;
+        margin-left: -150px;
+    }
+    .tss-ls-map-container{
+        display: none;
+    }
+    .tss-selector-container .tss-ls-header{
+        padding: 15px 45px 20px 20px;
+    }
+    .tss-selector-container .tss-ls-header .tss-ls-header-title{
+        font-size: 22px;
+    }
+    .tss-selector-container .tss-ls-header .tss-ls-options{
+        float: left;
+        margin-top: 10px;
+    }
+    .tss-selector-container .tss-ls-header .tss-ls-options .tss-ls-checkbox-wrapper{
+        margin-left: 0;
+        clear: both;
+    }
+}
+
+@media (min-width: 1200px) {
+    .tss-selector {
+        width: 950px;
+        margin-left: -475px;
+    }
+    .tss-selector-container .tss-ls-header .tss-ls-options{
+        max-width: none;
+    }
+    .tss-ls-map-container #tss-ls-map{
+        width: 540px;
+    }
+    #tss-ls-locations{
+        width: 410px;
+    }
+    .tss-ls-location-item{
+        padding: 18px 0;
+    }
+    .tss-ls-location-item .tss-ls-check{
+        width: 50px;
+    }
+}

@@ -1,0 +1,49 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php $_helper = Mage::helper('transsmart_shipping'); ?>
+<?php $_order = Mage::registry('current_order'); ?>
+
+<?php if (!$_helper->isTranssmartShippingMethod($_order->getShippingMethod())): ?>
+    <?php return ''; ?>
+<?php endif; ?>
+
+<?php $_pickupAddress = Mage::helper('transsmart_shipping/pickupaddress')->getPickupAddressFromOrder($_order); ?>
+<?php if (!$_pickupAddress): ?>
+    <?php return ''; ?>
+<?php endif; ?>
+
+<div class="three-column box-right" id="transsmart_pickup_address">
+    <!--Transsmart Pickup Address-->
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4 class="icon-head head-transsmart-pickup-address"><?php echo $this->__('Pickup Address'); ?></h4>
+            <div class="tools"><a href="<?php echo $this->getUrl('adminhtml/sales_order/address', array('address_id' => $_pickupAddress->getId())); ?>"><?php echo $this->__('Edit'); ?></a></div>
+        </div>
+        <fieldset>
+            <address><?php echo $_pickupAddress->format('html'); ?></address>
+        </fieldset>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //<[CDATA[
+    document.observe('dom:loaded', function() {
+        var billingAddress = $$('#sales_order_view_tabs_order_info_content .box-left')[1];
+        var shippingAddress = $$('#sales_order_view_tabs_order_info_content .box-right')[1];
+
+        billingAddress.addClassName('three-column');
+        shippingAddress.addClassName('three-column box-middle')
+            .removeClassName('box-right')
+            .insert(
+            {
+                after : $('transsmart_pickup_address')
+            }
+        );
+    });
+    //]]>
+</script>

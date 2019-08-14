@@ -1,0 +1,47 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Adminhtml_Sales_Order_Shipment_View_Detail $this */ ?>
+<table cellspacing="0" class="form-list transsmart-shipment-detail">
+    <tbody>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Carrier Profile')); ?></label></td>
+            <td class="value" colspan="3"><strong><?php echo $this->escapeHtml($this->getCarrierprofile()); ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Shipment Location')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getShipmentlocation()); ?></strong></td>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Email Type')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getEmailtype()); ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Cost Center')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getCostcenter()); ?></strong></td>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Incoterm')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getIncoterm()); ?></strong></td>
+        </tr>
+    </tbody>
+</table>
+
+<?php echo $this->getChildHtml('package'); ?>
+
+<table cellspacing="0" class="form-list transsmart-shipment-detail-extra">
+    <tbody>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Transsmart Document Id')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getTranssmartDocumentId()); ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Transsmart Status')); ?></label></td>
+            <td class="value"><strong><?php echo $this->escapeHtml($this->getTranssmartStatus()); ?></strong></td>
+        </tr>
+        <tr>
+            <td class="label"><label><?php echo $this->escapeHtml($this->__('Track & Trace')); ?></label></td>
+            <td class="value"><strong><?php echo $this->getTrackingLink(); ?></strong></td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,26 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Mage_Checkout_Block_Onepage_Progress $this */ ?>
+<?php $_helper = Mage::helper('transsmart_shipping'); ?>
+<?php $_quote = $this->getQuote(); ?>
+<?php $_shippingAddress = $_quote->getShippingAddress(); ?>
+<?php $_pickupLocation = Mage::helper('transsmart_shipping/pickupaddress')->getPickupAddressFromQuote($_quote); ?>
+
+<?php if (!$_helper->isTranssmartShippingMethod($_shippingAddress->getShippingMethod()) || !$_pickupLocation): ?>
+    <?php return ''; ?>
+<?php endif; ?>
+
+<dt class="complete"  id="tss-ls-progress-pickup-header">
+    <?php echo $_helper->__('Pickup Address'); ?> <span class="changelink"><span class="separator">|</span> <a
+            href="#shipping_method"
+            onclick="checkout.changeSection('opc-shipping_method'); return false;"><?php echo $this->__('Change') ?></a></span>
+</dt>
+
+<dd class="complete" id="tss-ls-progress-pickup-content">
+    <?php echo $_pickupLocation->format('html'); ?>
+</dd>

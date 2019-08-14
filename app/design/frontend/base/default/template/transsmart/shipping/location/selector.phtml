@@ -1,0 +1,65 @@
+<?php
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+?>
+<?php /** @var Transsmart_Shipping_Block_Location_Selector $this */ ?>
+<?php $helper = Mage::helper('transsmart_shipping'); ?>
+
+<div id="tss-pickup-container" style="display: none;">
+    <div class="tss-selector">
+        <div class="tss-selector-inner">
+            <button id="tss-ls-close"></button>
+            <div class="tss-loader">
+                <img src="<?php echo $this->getSkinUrl('transsmart/shipping/images/loader.gif'); ?>" />
+            </div>
+
+            <div class="tss-selector-container" style="display: none">
+                <div class="tss-ls-header">
+                    <span class="tss-ls-header-title"><?php echo $helper->__('Select pickup location'); ?></span>
+                    <div class="tss-ls-search-wrapper">
+                        <input type="text" id="tss-ls-search" placeholder="<?php echo $helper->__('1234 AB'); ?>" />
+                        <button type="button" id="tss-ls-search-btn"><?php echo $helper->__('Search'); ?></button>
+                    </div>
+                    <div class="tss-ls-options">
+                        <div class="tss-ls-checkbox-wrapper">
+                            <input type="checkbox" id="tss-ls-show-open-late" name="tss-ls-show-open-late" /> <label for="tss-ls-show-open-late"><?php echo $helper->__('Open late'); ?></label>
+                        </div>
+                        <div class="tss-ls-checkbox-wrapper">
+                            <input type="checkbox" id="tss-ls-show-open-early" name="tss-ls-show-open-early" /> <label for="tss-ls-show-open-early"><?php echo $helper->__('Open early'); ?></label>
+                        </div>
+                        <div class="tss-ls-checkbox-wrapper">
+                            <input type="checkbox" id="tss-ls-show-open-sunday" name="tss-ls-show-open-sunday" /> <label for="tss-ls-show-open-sunday"><?php echo $helper->__('Open on sunday'); ?></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tss-ls-content">
+                    <div class="tss-ls-map-container">
+                        <div id="tss-ls-map"></div>
+                    </div>
+                    <div class="tss-ls-location-wrapper">
+                        <h3><?php echo $helper->__('Found pickup locations:'); ?></h3>
+                        <div id="tss-ls-locations"></div>
+                    </div>
+                </div>
+                <div class="tss-ls-footer-controls">
+                    <button id="tss-ls-select"><?php echo $helper->__('Save'); ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tss-background-overlay"></div>
+</div>
+
+<script type="text/javascript">
+    var transsmartShippingPickup = new Transsmart.Shipping.Pickup({
+        lookupUrl: '<?php echo $this->getUrl('transsmart_shipping/location/lookup'); ?>',
+        carrierProfileIds: <?php echo Zend_Json_Encoder::encode($helper->getLocationSelectCarrierProfiles()); ?>
+    });
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?callback=transsmartShippingPickup.googleMapsLoaded&libraries=geometry"></script>

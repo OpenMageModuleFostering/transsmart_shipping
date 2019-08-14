@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @category    Transsmart
+ * @package     Transsmart_Shipping
+ * @copyright   Copyright (c) 2016 Techtwo Webdevelopment B.V. (http://www.techtwo.nl)
+ */
+-->
+<jstranslator>
+    <tss-ls-error translate="message" module="transsmart_shipping">
+        <message>Error loading pickup location selector. Please try again.</message>
+    </tss-ls-error>
+    <tss-ls-search-error translate="message" module="transsmart_shipping">
+        <message>Search did not succeed. Please try again.</message>
+    </tss-ls-search-error>
+    <tss-ls-select-location translate="message" module="transsmart_shipping">
+        <message>Select pickup location</message>
+    </tss-ls-select-location>
+    <tss-ls-validate-pickup-location-error translate="message" module="transsmart_shipping">
+        <message>A pickup location has to be selected</message>
+    </tss-ls-validate-pickup-location-error>
+    <tss-ls-openinghours translate="message" module="transsmart_shipping">
+        <message>Opening hours:</message>
+    </tss-ls-openinghours>
+</jstranslator>

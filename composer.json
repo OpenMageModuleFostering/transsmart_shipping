@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Transsmart_Shipping",
+    "name": "OpenMageModuleFostering\/Transsmart_Shipping",
     "type": "magento-module",
     "license": "Open-Software-License-(OSL-3.0)",
     "homepage": "",
     "description": "Transsmart Magento connector",
     "authors": [
-    {
-        "name": "Techtwo Webdevelopment B.V.",
-        "email": "info@techtwo.nl"
-    }
-],
+        {
+            "name": "Techtwo Webdevelopment B.V.",
+            "email": "info@techtwo.nl"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }

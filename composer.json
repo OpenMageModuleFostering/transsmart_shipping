@@ -1,7 +1,7 @@
 {
-    "name": "OpenMageModuleFostering\/Transsmart_Shipping",
+    "name": "openmage-module-fostering\/transsmart_shipping",
     "type": "magento-module",
-    "license": "Open-Software-License-(OSL-3.0)",
+    "license": "OSL-3.0",
     "homepage": "",
     "description": "Transsmart Magento connector",
     "authors": [
